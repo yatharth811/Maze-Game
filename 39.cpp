@@ -25,6 +25,12 @@ const int TOTAL_TILE_SPRITES = 17003;
 vector<int> roadTiles{7,8,20, 21, 22, 23, 34, 35, 36, 37, 49, 50, 62, 63, 64, 65, 76, 77, 78, 79, 90, 91, 92, 93, 104, 105, 106, 107};
 
 
+const int WALKING_ANIMATION_FRAMES = 16;
+SDL_Rect gSpriteClips[ WALKING_ANIMATION_FRAMES ];
+
+
+int frame = 0;
+
 //Texture wrapper class
 class LTexture
 {
@@ -61,6 +67,10 @@ class LTexture
 		//Gets image dimensions
 		int getWidth();
 		int getHeight();
+
+		SDL_Texture* getTexture(){
+			return mTexture;
+		}
 
 	private:
 		//The actual hardware texture
@@ -157,6 +167,7 @@ SDL_Renderer* gRenderer = NULL;
 
 //Scene textures
 LTexture gDotTexture;
+LTexture charTexture;
 LTexture firstImageTexture;
 LTexture secondImageTexture;
 LTexture thirdImageTexture;
@@ -196,8 +207,8 @@ bool LTexture::loadFromFile( std::string path )
 	}
 	else
 	{
-		//Color key image
-		SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0, 0xFF, 0xFF ) );
+		if(path.compare("assests/character.bmp"))
+		SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0xFE, 0xFE, 0xFE ) );
 
 		//Create texture from surface pixels
         newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
@@ -472,6 +483,113 @@ void Dot::render( SDL_Rect& camera )
 	gDotTexture.render( mBox.x - camera.x, mBox.y - camera.y );
 }
 
+class Character{
+	public:
+	SDL_Rect charBox;
+	int direction,mVelx,mVely;
+	static const int DOT_VEL = 10;
+	Character(){
+		charBox.x = 9290;
+		charBox.y = 3520;
+		charBox.w = 60;
+		charBox.h = 60;
+		direction = 0;
+		mVelx = 0;
+		mVely = 0;
+
+	}
+
+	void render(SDL_Renderer* gRenderer,SDL_Rect* camera, int frame){
+		SDL_Rect newrect = {charBox.x-camera->x,charBox.y-camera->y,charBox.w,charBox.h};
+
+
+		SDL_RenderCopy(gRenderer,charTexture.getTexture(),&gSpriteClips[direction*4+frame],&newrect);
+	}
+
+	void handleEvent(SDL_Event& e){
+		if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
+		{
+			// frame++;
+
+			// if(frame/4 >= WALKING_ANIMATION_FRAMES/4){
+			// 	frame = 0;
+			// }
+
+			//Adjust the velocity
+			switch( e.key.keysym.sym )
+			{
+				case SDLK_UP: mVely -= DOT_VEL; direction = 1; break;
+				case SDLK_DOWN: mVely += DOT_VEL; direction = 0; break;
+				case SDLK_LEFT: mVelx -= DOT_VEL; direction = 2; break;
+				case SDLK_RIGHT: mVelx += DOT_VEL; direction = 3; break;
+			}
+		}
+		//If a key was released
+		else if( e.type == SDL_KEYUP && e.key.repeat == 0 )
+		{
+			//Adjust the velocity
+			switch( e.key.keysym.sym )
+			{
+				case SDLK_UP: mVely += DOT_VEL; break;
+				case SDLK_DOWN: mVely -= DOT_VEL; break;
+				case SDLK_LEFT: mVelx += DOT_VEL; break;
+				case SDLK_RIGHT: mVelx -= DOT_VEL; break;
+			}
+		}
+	}
+
+	void move(Tile *tiles[]){
+		 charBox.x += mVelx;
+
+		//If the dot went too far to the left or right or touched a wall
+		// || touchesRoad( mBox, tiles ) 
+		if( ( charBox.x < 0 ) || ( charBox.x + charBox.w > LEVEL_WIDTH ) || !touchesRoad(charBox, tiles))
+		{
+			//move back
+			charBox.x -= mVelx;
+		}
+
+		// cout << mBox.x << endl;
+		//Move the dot up or down
+		charBox.y += mVely;
+
+		//If the dot went too far up or down or touched a wall
+		// || touchesRoad( mBox, tiles )
+		if( ( charBox.y < 0 ) || ( charBox.y + charBox.h > LEVEL_HEIGHT ) || !touchesRoad(charBox, tiles))
+		{
+			//move back
+			charBox.y -= mVely;
+		}
+
+	}
+
+	void setCamera(SDL_Rect& camera){
+		//Center the camera over the dot
+	camera.x = ( charBox.x + charBox.w / 2 ) - SCREEN_WIDTH / 2;
+	camera.y = ( charBox.y + charBox.h / 2 ) - SCREEN_HEIGHT / 2;
+
+	if( camera.x < 0 )
+	{ 
+		camera.x = 0;
+	}
+	if( camera.y < 0 )
+	{
+		camera.y = 0;
+	}
+	if( camera.x > LEVEL_WIDTH - camera.w )
+	{
+		camera.x = LEVEL_WIDTH - camera.w;
+	}
+	if( camera.y > LEVEL_HEIGHT - camera.h )
+	{
+		camera.y = LEVEL_HEIGHT - camera.h;
+	}
+
+	}
+
+
+};
+
 bool init()
 {
 	//Initialization flag
@@ -536,6 +654,97 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	{
 		printf( "Failed to load dot texture!\n" );
 		success = false;
+	}
+
+	if( !charTexture.loadFromFile("assets/character.bmp")){
+		printf( "Failed to load walking animation texture!\n" );
+        success = false;
+	}
+
+	else{
+		//direction down
+        gSpriteClips[ 0 ].x =   0;
+        gSpriteClips[ 0 ].y =   0;
+        gSpriteClips[ 0 ].w =  200;
+        gSpriteClips[ 0 ].h =  300;
+
+        gSpriteClips[ 1 ].x =  200;
+        gSpriteClips[ 1 ].y =  0;
+        gSpriteClips[ 1 ].w =  200;
+        gSpriteClips[ 1 ].h = 300;
+        
+        gSpriteClips[ 2 ].x = 400;
+        gSpriteClips[ 2 ].y =   0;
+        gSpriteClips[ 2 ].w =  200;
+        gSpriteClips[ 2 ].h = 300;
+
+        gSpriteClips[ 3 ].x = 600;
+        gSpriteClips[ 3 ].y =   0;
+        gSpriteClips[ 3 ].w =  200;
+        gSpriteClips[ 3 ].h = 300;
+
+		//dir up
+        gSpriteClips[ 4 ].x =   0;
+        gSpriteClips[ 4 ].y =   300;
+        gSpriteClips[ 4 ].w =  200;
+        gSpriteClips[ 4 ].h = 300;
+
+        gSpriteClips[ 5 ].x =  200;
+        gSpriteClips[ 5 ].y =   300;
+        gSpriteClips[ 5 ].w =  200;
+        gSpriteClips[ 5 ].h = 300;
+        
+        gSpriteClips[ 6 ].x = 400;
+        gSpriteClips[ 6 ].y =   300;
+        gSpriteClips[ 6 ].w =  200;
+        gSpriteClips[ 6 ].h = 300;
+
+        gSpriteClips[ 7 ].x = 600;
+        gSpriteClips[ 7 ].y =  300;
+        gSpriteClips[ 7 ].w =  200;
+        gSpriteClips[ 7 ].h = 300;
+
+		//dir left
+        gSpriteClips[ 8 ].x =   0;
+        gSpriteClips[ 8 ].y =   600;
+        gSpriteClips[ 8 ].w =  200;
+        gSpriteClips[ 8 ].h = 300;
+
+        gSpriteClips[ 9 ].x =  200;
+        gSpriteClips[ 9 ].y =   600;
+        gSpriteClips[ 9 ].w =  200;
+        gSpriteClips[ 9 ].h = 300;
+        
+        gSpriteClips[ 10 ].x = 400;
+        gSpriteClips[ 10].y =  600;
+        gSpriteClips[ 10 ].w =  200;
+        gSpriteClips[ 10 ].h = 300;
+
+        gSpriteClips[ 11 ].x = 600;
+        gSpriteClips[ 11 ].y =   600;
+        gSpriteClips[ 11 ].w =  200;
+        gSpriteClips[ 11 ].h = 300;
+
+		//dir right
+        gSpriteClips[ 12 ].x =   0;
+        gSpriteClips[ 12 ].y =   900;
+        gSpriteClips[ 12 ].w =  200;
+        gSpriteClips[ 12 ].h = 300;
+
+        gSpriteClips[ 13 ].x =  200;
+        gSpriteClips[ 13 ].y =   900;
+        gSpriteClips[ 13 ].w =  200;
+        gSpriteClips[ 13 ].h = 300;
+        
+        gSpriteClips[ 14 ].x = 400;
+        gSpriteClips[ 14 ].y =   900;
+        gSpriteClips[ 14 ].w =  200;
+        gSpriteClips[ 14 ].h = 300;
+
+        gSpriteClips[ 15 ].x = 600;
+        gSpriteClips[ 15 ].y =   900;
+        gSpriteClips[ 15 ].w =  200;
+        gSpriteClips[ 15 ].h = 300;
 	}
 
 	//Load tile texture
@@ -831,7 +1040,11 @@ int main( int argc, char* args[] )
 			SDL_Event e;
 
 			//The dot that will be moving around on the screen
-			Dot dot;
+			//Dot dot;
+
+			
+			
+			Character boy;
 
 			//Level camera
 			SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
@@ -851,12 +1064,23 @@ int main( int argc, char* args[] )
 					}
 
 					//Handle input for the dot
-					dot.handleEvent( e );
+					// dot.handleEvent( e );
+					boy.handleEvent(e);
+
+					if(e.type == SDL_KEYDOWN){
+						frame++;
+						if(frame >= 16){
+							frame = 0;
+						}
+					}
 				}
 
 				//Move the dot
-				dot.move( tileSet2 );
-				dot.setCamera( camera );
+				// dot.move( tileSet2 );
+				// dot.setCamera( camera );
+
+				boy.move(tileSet2);
+				boy.setCamera(camera);
 
 				//Clear screen
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -876,10 +1100,13 @@ int main( int argc, char* args[] )
 
 				// cout << "-----" << dot.getBox().x << " " << dot.getBox().y ;
 				//Render dot
-				dot.render( camera );
+				//dot.render( camera );
+				boy.render(gRenderer, &camera, frame/4);
 
 				//Update screen
 				SDL_RenderPresent( gRenderer );
+
+
 			}
 		}
 		
