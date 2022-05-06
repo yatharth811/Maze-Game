@@ -540,6 +540,7 @@ class Character{
 		
 
 		if (id == 1){
+			healthRect.y -= (healthspriteno != 0 || healthspriteno != 5 ? 10 : 0);
 			if(flag) SDL_RenderCopy(gRenderer,charOneTexture.getTexture(),&charOneClips[direction*4+frame],&newrect);
 			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
 		}

@@ -539,14 +539,15 @@ class Character{
 		else if(health >= 0 && health < 10) healthspriteno = 5;
 		
 
-		if (id == 1){
-			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
-			if(flag) SDL_RenderCopy(gRenderer,charOneTexture.getTexture(),&charOneClips[direction*4+frame],&newrect);
-		}
-		else if (id == 2){
-			healthRect.y = healthRect.y + 40;
+		if (id == 2){
+			healthRect.y += (healthspriteno != 0 || healthspriteno != 5 ? 10 : 0);
 			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
 			if(flag) SDL_RenderCopy(gRenderer,charTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
+		}
+		else if (id == 1){
+			healthRect.y = healthRect.y + 60;
+			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
+			if(flag) SDL_RenderCopy(gRenderer,charOneTexture.getTexture(),&charOneClips[direction*4+frame],&newrect);
 		}	
 	}
 
