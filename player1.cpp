@@ -33,6 +33,8 @@ const int WALKING_ANIMATION_FRAMES = 16;
 SDL_Rect charOneClips[WALKING_ANIMATION_FRAMES];
 SDL_Rect charTwoClips[WALKING_ANIMATION_FRAMES];
 
+SDL_Rect healthClips[6];
+
 int frame = 0;
 
 //Texture wrapper class
@@ -169,6 +171,7 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
+
 //Scene textures
 LTexture gDotTexture;
 LTexture charOneTexture;
@@ -180,6 +183,7 @@ LTexture fourthImageTexture;
 LTexture fifthImageTexture;
 LTexture sixthImageTexture;
 LTexture seventhImageTexture;
+LTexture healthImageTexture;
 SDL_Rect gTileClips1[ TOTAL_TILE_SPRITES1 ];
 SDL_Rect gTileClips2[ TOTAL_TILE_SPRITES2 ];
 SDL_Rect gTileClips3[ TOTAL_TILE_SPRITES3 ];
@@ -506,9 +510,11 @@ void Dot::render( SDL_Rect& camera )
 class Character{
 	public:
 	SDL_Rect charBox;
+	int health;
 	int id, direction, mVelx, mVely;
 	static const int DOT_VEL = 10;
 	Character(int playerId){
+		health = 100;
 		charBox.x = 9290;
 		charBox.y = 3520;
 		charBox.w = 60;
@@ -519,13 +525,29 @@ class Character{
 		id = playerId;
 	}
 
-	void render(SDL_Renderer* gRenderer,SDL_Rect* camera, int frame){
+	void render(SDL_Renderer* gRenderer,SDL_Rect* camera, int frame, bool flag){
+		int healthspriteno;
 		SDL_Rect newrect = {charBox.x-camera->x,charBox.y-camera->y,charBox.w,charBox.h};
 
-		if (id == 1)
-			SDL_RenderCopy(gRenderer,charOneTexture.getTexture(),&charOneClips[direction*4+frame],&newrect);
-		else if (id == 2)
-			SDL_RenderCopy(gRenderer,charTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
+		SDL_Rect healthRect = {camera->x, camera->y, 140, 60};
+
+		if(health>=90 && health<=100) healthspriteno=0;
+		else if(health>=70 && health<90) healthspriteno = 1;
+		else if(health>=50 && health<70) healthspriteno = 2;
+		else if(health>=30 && health<50) healthspriteno = 3;
+		else if(health>=10 && health<30) healthspriteno = 4;
+		else if(health>=0 && health<10) healthspriteno = 5;
+		
+
+		if (id == 1){
+			if(flag) SDL_RenderCopy(gRenderer,charOneTexture.getTexture(),&charOneClips[direction*4+frame],&newrect);
+			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
+		}
+		else if (id == 2){
+			healthRect.y = healthRect.y + 60;
+			if(flag) SDL_RenderCopy(gRenderer,charTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
+			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
+		}	
 	}
 
 	void handleEvent(SDL_Event& e){
@@ -626,6 +648,14 @@ class Character{
 		direction = dir;
 	}
 
+	int getHealth(){
+		return health;
+	}
+
+	void changehealth(int heal){
+		health = heal;
+	}
+
 };
 
 bool init()
@@ -687,6 +717,16 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	//Loading success flag
 	bool success = true;
 
+	if(!healthImageTexture.loadFromFile("assets/health.png")){
+		printf( "Failed to load health texture!\n" );
+		success = false;
+	}
+	else{
+		for(int i=0;i<=5;i++){
+			healthClips[i] = {0, 82*i, 496, 82};
+		}
+	}
+
 	//Load dot texture
 	if( !gDotTexture.loadFromFile( "assets/dot.bmp" ) )
 	{
@@ -700,7 +740,7 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	}
 
 	else{
-
+		//direction down
 		int x = 0, y = 0, cnt = 0;
 
 		for (int i = 0; i < 4; i++){
@@ -712,7 +752,88 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 			x = 0;
 			y += 72;
 		}
+        // charOneClips[ 0 ].x =   0;
+        // charOneClips[ 0 ].y =   0;
+        // charOneClips[ 0 ].w =  200;
+        // charOneClips[ 0 ].h =  300;
+
+        // charOneClips[ 1 ].x =  200;
+        // charOneClips[ 1 ].y =  0;
+        // charOneClips[ 1 ].w =  200;
+        // charOneClips[ 1 ].h = 300;
         
+        // charOneClips[ 2 ].x = 400;
+        // charOneClips[ 2 ].y =   0;
+        // charOneClips[ 2 ].w =  200;
+        // charOneClips[ 2 ].h = 300;
+
+        // charOneClips[ 3 ].x = 600;
+        // charOneClips[ 3 ].y =   0;
+        // charOneClips[ 3 ].w =  200;
+        // charOneClips[ 3 ].h = 300;
+
+		// //dir up
+        // charOneClips[ 4 ].x =   0;
+        // charOneClips[ 4 ].y =   300;
+        // charOneClips[ 4 ].w =  200;
+        // charOneClips[ 4 ].h = 300;
+
+        // charOneClips[ 5 ].x =  200;
+        // charOneClips[ 5 ].y =   300;
+        // charOneClips[ 5 ].w =  200;
+        // charOneClips[ 5 ].h = 300;
+        
+        // charOneClips[ 6 ].x = 400;
+        // charOneClips[ 6 ].y =   300;
+        // charOneClips[ 6 ].w =  200;
+        // charOneClips[ 6 ].h = 300;
+
+        // charOneClips[ 7 ].x = 600;
+        // charOneClips[ 7 ].y =  300;
+        // charOneClips[ 7 ].w =  200;
+        // charOneClips[ 7 ].h = 300;
+
+		// //dir left
+        // charOneClips[ 8 ].x =   0;
+        // charOneClips[ 8 ].y =   600;
+        // charOneClips[ 8 ].w =  200;
+        // charOneClips[ 8 ].h = 300;
+
+        // charOneClips[ 9 ].x =  200;
+        // charOneClips[ 9 ].y =   600;
+        // charOneClips[ 9 ].w =  200;
+        // charOneClips[ 9 ].h = 300;
+        
+        // charOneClips[ 10 ].x = 400;
+        // charOneClips[ 10].y =  600;
+        // charOneClips[ 10 ].w =  200;
+        // charOneClips[ 10 ].h = 300;
+
+        // charOneClips[ 11 ].x = 600;
+        // charOneClips[ 11 ].y =   600;
+        // charOneClips[ 11 ].w =  200;
+        // charOneClips[ 11 ].h = 300;
+
+		// //dir right
+        // charOneClips[ 12 ].x =   0;
+        // charOneClips[ 12 ].y =   900;
+        // charOneClips[ 12 ].w =  200;
+        // charOneClips[ 12 ].h = 300;
+
+        // charOneClips[ 13 ].x =  200;
+        // charOneClips[ 13 ].y =   900;
+        // charOneClips[ 13 ].w =  200;
+        // charOneClips[ 13 ].h = 300;
+        
+        // charOneClips[ 14 ].x = 400;
+        // charOneClips[ 14 ].y =   900;
+        // charOneClips[ 14 ].w =  200;
+        // charOneClips[ 14 ].h = 300;
+
+        // charOneClips[ 15 ].x = 600;
+        // charOneClips[ 15 ].y =   900;
+        // charOneClips[ 15 ].w =  200;
+        // charOneClips[ 15 ].h = 300;
 	}
 
 	if (!charTwoTexture.loadFromFile("assets/zblue.png")){
@@ -820,6 +941,7 @@ void close( Tile* tiles[] )
 	seventhImageTexture.free();
 	charOneTexture.free();
 	charTwoTexture.free();
+	healthImageTexture.free();
 
 
 	//Destroy window	
@@ -1082,7 +1204,7 @@ int main( int argc, char* args[] )
 		Tile* tileSet2[TOTAL_TILES];
 
 		//Networking
-		int datain[] = {0,0,0,0,0,0}, dataout[] = {0,0,0,0,0,0};
+		int datain[] = {0,0,0,0,0,0,0}, dataout[] = {0,0,0,0,0,0,0};
 
 		IPaddress ip;
         SDLNet_ResolveHost(&ip, "127.0.0.1", 1234);
@@ -1116,6 +1238,7 @@ int main( int argc, char* args[] )
 
 
 
+
 				//While application is running
 				while( !quit )
 				{
@@ -1127,7 +1250,7 @@ int main( int argc, char* args[] )
 						{
 							quit = true;
 							dataout[0] = -1;
-                            SDLNet_TCP_Send(client, dataout, 16);
+                            SDLNet_TCP_Send(client, dataout, 28);
 						}
 
 						//Handle input for the dot
@@ -1154,7 +1277,8 @@ int main( int argc, char* args[] )
                     dataout[3] = curpos.h;
 					dataout[4] = boy.getDirection();
 					dataout[5] = frame/4;
-                    SDLNet_TCP_Send(client, dataout, 24);
+					dataout[6] = boy.getHealth();
+                    SDLNet_TCP_Send(client, dataout, 28);
 					boy.setCamera(camera);
 
 					//Clear screen
@@ -1176,16 +1300,18 @@ int main( int argc, char* args[] )
 					// cout << "-----" << dot.getBox().x << " " << dot.getBox().y ;
 					//Render dot
 					//dot.render( camera );
-					boy.render(gRenderer, &camera, frame/4);
+					boy.render(gRenderer, &camera, frame/4, true);
 
-					SDLNet_TCP_Recv(client,datain,24);
+					SDLNet_TCP_Recv(client,datain,28);
                     fromserver = {datain[0], datain[1], datain[2], datain[3]};
 
+					boy2.changehealth(datain[6]);
 
-                    if(boy2.checkcolwithchar(camera,fromserver)){
-						boy2.changedirection(datain[4]);
-                        boy2.render(gRenderer, &camera, datain[5]);
-                    }
+
+                    bool f = boy2.checkcolwithchar(camera,fromserver);
+					if(f) boy2.changedirection(datain[4]);
+                    boy2.render(gRenderer, &camera, datain[5], f);
+                    
 
 					//Update screen
 					SDL_RenderPresent( gRenderer );
