@@ -184,6 +184,8 @@ LTexture fifthImageTexture;
 LTexture sixthImageTexture;
 LTexture seventhImageTexture;
 LTexture healthImageTexture;
+LTexture nurseTexture;
+
 SDL_Rect gTileClips1[ TOTAL_TILE_SPRITES1 ];
 SDL_Rect gTileClips2[ TOTAL_TILE_SPRITES2 ];
 SDL_Rect gTileClips3[ TOTAL_TILE_SPRITES3 ];
@@ -718,6 +720,11 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	//Loading success flag
 	bool success = true;
 
+	if(!nurseTexture.loadFromFile("assets/nurse.png")){
+		printf( "Failed to load nurse texture!\n" );
+		success = false;
+	}
+
 	if(!healthImageTexture.loadFromFile("assets/health.png")){
 		printf( "Failed to load health texture!\n" );
 		success = false;
@@ -1156,7 +1163,8 @@ int main( int argc, char* args[] )
 				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 				SDL_Rect fromserver;
 
-
+				SDL_Rect nursesrc = {0, 0, 64, 64};
+				SDL_Rect nursedst = {5025,3420,60,60};
 
 
 				//While application is running
@@ -1217,9 +1225,6 @@ int main( int argc, char* args[] )
 						tileSet2[ i ]->render( camera );
 					}
 
-					// cout << "-----" << camera.x  << " " << camera.y << endl;
-					//Render dot
-					//dot.render( camera );
 					boy.render(gRenderer, &camera, frame/4, true);
 
 					SDLNet_TCP_Recv(client,datain,28);
@@ -1231,6 +1236,11 @@ int main( int argc, char* args[] )
                     bool f = boy2.checkcolwithchar(camera,fromserver);
 					if(f) boy2.changedirection(datain[4]);
                     boy2.render(gRenderer, &camera, datain[5], f);
+
+					if(checkCollision(camera, nursedst)) {
+						SDL_Rect newnurse = {nursedst.x-camera.x, nursedst.y-camera.y, nursedst.w, nursedst.h};
+						SDL_RenderCopy(gRenderer, nurseTexture.getTexture(), &nursesrc, &newnurse);
+					}
                     
 
 					//Update screen

@@ -184,6 +184,8 @@ LTexture fifthImageTexture;
 LTexture sixthImageTexture;
 LTexture seventhImageTexture;
 LTexture healthImageTexture;
+LTexture nurseTexture;
+
 SDL_Rect gTileClips1[ TOTAL_TILE_SPRITES1 ];
 SDL_Rect gTileClips2[ TOTAL_TILE_SPRITES2 ];
 SDL_Rect gTileClips3[ TOTAL_TILE_SPRITES3 ];
@@ -718,6 +720,11 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	//Loading success flag
 	bool success = true;
 
+	if(!nurseTexture.loadFromFile("assets/nurse.png")){
+		printf( "Failed to load nurse texture!\n" );
+		success = false;
+	}
+
 	if(!healthImageTexture.loadFromFile("assets/health.png")){
 		printf( "Failed to load health texture!\n" );
 		success = false;
@@ -753,88 +760,6 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 			x = 0;
 			y += 72;
 		}
-        // charOneClips[ 0 ].x =   0;
-        // charOneClips[ 0 ].y =   0;
-        // charOneClips[ 0 ].w =  200;
-        // charOneClips[ 0 ].h =  300;
-
-        // charOneClips[ 1 ].x =  200;
-        // charOneClips[ 1 ].y =  0;
-        // charOneClips[ 1 ].w =  200;
-        // charOneClips[ 1 ].h = 300;
-        
-        // charOneClips[ 2 ].x = 400;
-        // charOneClips[ 2 ].y =   0;
-        // charOneClips[ 2 ].w =  200;
-        // charOneClips[ 2 ].h = 300;
-
-        // charOneClips[ 3 ].x = 600;
-        // charOneClips[ 3 ].y =   0;
-        // charOneClips[ 3 ].w =  200;
-        // charOneClips[ 3 ].h = 300;
-
-		// //dir up
-        // charOneClips[ 4 ].x =   0;
-        // charOneClips[ 4 ].y =   300;
-        // charOneClips[ 4 ].w =  200;
-        // charOneClips[ 4 ].h = 300;
-
-        // charOneClips[ 5 ].x =  200;
-        // charOneClips[ 5 ].y =   300;
-        // charOneClips[ 5 ].w =  200;
-        // charOneClips[ 5 ].h = 300;
-        
-        // charOneClips[ 6 ].x = 400;
-        // charOneClips[ 6 ].y =   300;
-        // charOneClips[ 6 ].w =  200;
-        // charOneClips[ 6 ].h = 300;
-
-        // charOneClips[ 7 ].x = 600;
-        // charOneClips[ 7 ].y =  300;
-        // charOneClips[ 7 ].w =  200;
-        // charOneClips[ 7 ].h = 300;
-
-		// //dir left
-        // charOneClips[ 8 ].x =   0;
-        // charOneClips[ 8 ].y =   600;
-        // charOneClips[ 8 ].w =  200;
-        // charOneClips[ 8 ].h = 300;
-
-        // charOneClips[ 9 ].x =  200;
-        // charOneClips[ 9 ].y =   600;
-        // charOneClips[ 9 ].w =  200;
-        // charOneClips[ 9 ].h = 300;
-        
-        // charOneClips[ 10 ].x = 400;
-        // charOneClips[ 10].y =  600;
-        // charOneClips[ 10 ].w =  200;
-        // charOneClips[ 10 ].h = 300;
-
-        // charOneClips[ 11 ].x = 600;
-        // charOneClips[ 11 ].y =   600;
-        // charOneClips[ 11 ].w =  200;
-        // charOneClips[ 11 ].h = 300;
-
-		// //dir right
-        // charOneClips[ 12 ].x =   0;
-        // charOneClips[ 12 ].y =   900;
-        // charOneClips[ 12 ].w =  200;
-        // charOneClips[ 12 ].h = 300;
-
-        // charOneClips[ 13 ].x =  200;
-        // charOneClips[ 13 ].y =   900;
-        // charOneClips[ 13 ].w =  200;
-        // charOneClips[ 13 ].h = 300;
-        
-        // charOneClips[ 14 ].x = 400;
-        // charOneClips[ 14 ].y =   900;
-        // charOneClips[ 14 ].w =  200;
-        // charOneClips[ 14 ].h = 300;
-
-        // charOneClips[ 15 ].x = 600;
-        // charOneClips[ 15 ].y =   900;
-        // charOneClips[ 15 ].w =  200;
-        // charOneClips[ 15 ].h = 300;
 	}
 
 	if (!charTwoTexture.loadFromFile("assets/zblue.png")){
@@ -1237,7 +1162,8 @@ int main( int argc, char* args[] )
 				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 				SDL_Rect fromserver;
 
-
+				SDL_Rect nursesrc = {0, 0, 64, 64};
+				SDL_Rect nursedst = {5025,3420,60,60};
 
 
 				//While application is running
@@ -1298,9 +1224,6 @@ int main( int argc, char* args[] )
 						tileSet2[ i ]->render( camera );
 					}
 
-					// cout << "-----" << dot.getBox().x << " " << dot.getBox().y ;
-					//Render dot
-					//dot.render( camera );
 					boy.render(gRenderer, &camera, frame/4, true);
 
 					SDLNet_TCP_Recv(client,datain,28);
@@ -1312,6 +1235,11 @@ int main( int argc, char* args[] )
                     bool f = boy2.checkcolwithchar(camera,fromserver);
 					if(f) boy2.changedirection(datain[4]);
                     boy2.render(gRenderer, &camera, datain[5], f);
+
+					if(checkCollision(camera, nursedst)) {
+						SDL_Rect newnurse = {nursedst.x-camera.x, nursedst.y-camera.y, nursedst.w, nursedst.h};
+						SDL_RenderCopy(gRenderer, nurseTexture.getTexture(), &nursesrc, &newnurse);
+					}
                     
 
 					//Update screen
