@@ -615,6 +615,14 @@ class Character{
         return checkCollision(charBox,camera);
     }
 
+	int getDirection(){
+		return direction;
+	}
+
+	void changedirection(int dir){
+		direction = dir;
+	}
+
 };
 
 bool init()
@@ -1122,7 +1130,7 @@ int main( int argc, char* args[] )
 		Tile* tileSet2[TOTAL_TILES];
 
 		//Networking
-		int datain[] = {0,0,0,0}, dataout[] = {0,0,0,0};
+		int datain[] = {0,0,0,0,0,0}, dataout[] = {0,0,0,0,0,0};
 
 		IPaddress ip;
         SDLNet_ResolveHost(&ip, "127.0.0.1", 1234);
@@ -1192,7 +1200,9 @@ int main( int argc, char* args[] )
                     dataout[1] = curpos.y;
                     dataout[2] = curpos.w;
                     dataout[3] = curpos.h;
-                    SDLNet_TCP_Send(client, dataout, 16);
+					dataout[4] = boy.getDirection();
+					dataout[5] = frame/4;
+                    SDLNet_TCP_Send(client, dataout, 24);
 					boy.setCamera(camera);
 
 					//Clear screen
@@ -1216,11 +1226,13 @@ int main( int argc, char* args[] )
 					//dot.render( camera );
 					boy.render(gRenderer, &camera, frame/4);
 
-					SDLNet_TCP_Recv(client,datain,16);
+					SDLNet_TCP_Recv(client,datain,24);
                     fromserver = {datain[0], datain[1], datain[2], datain[3]};
 
+
                     if(boy2.checkcolwithchar(camera,fromserver)){
-                        boy2.render(gRenderer, &camera, 0);
+						boy2.changedirection(datain[4]);
+                        boy2.render(gRenderer, &camera, datain[5]);
                     }
 
 					//Update screen

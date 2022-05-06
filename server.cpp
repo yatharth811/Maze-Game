@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 
     TCPsocket server = SDLNet_TCP_Open(&ip);
     TCPsocket client1,client2;
-    int data1[4], data2[4];
+    int data1[6], data2[6];
     bool flag1=false,flag2=false;
     while(true){
         client1 = SDLNet_TCP_Accept(server);
@@ -34,10 +34,10 @@ int main(int argc, char** argv){
     }
 
     while(flag1 && flag2){
-        SDLNet_TCP_Recv(client1,data1,16);
-        SDLNet_TCP_Recv(client2,data2,16);
-        SDLNet_TCP_Send(client1, data2, 16);
-        SDLNet_TCP_Send(client2, data1, 16);
+        SDLNet_TCP_Recv(client1,data1,24);
+        SDLNet_TCP_Recv(client2,data2,24);
+        SDLNet_TCP_Send(client1, data2, 24);
+        SDLNet_TCP_Send(client2, data1, 24);
         if( data1[0] == -1 || data2[0] == -1){
             SDLNet_TCP_Close(client1);
             SDLNet_TCP_Close(client2);
