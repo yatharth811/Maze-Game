@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_net.h>
 #include <stdio.h>
 #include <bits/stdc++.h>
 #include <fstream>
@@ -20,9 +21,12 @@ const int TOTAL_TILE_SPRITES1 = 324;
 const int TOTAL_TILE_SPRITES2 = 196;
 const int TOTAL_TILE_SPRITES3 = 16384;
 const int TOTAL_TILE_SPRITES4 = 99;
-const int TOTAL_TILE_SPRITES = 17003;
+const int TOTAL_TILE_SPRITES5 = 6;
+const int TOTAL_TILE_SPRITES6 = 384;
+const int TOTAL_TILE_SPRITES7 = 4096;
+const int TOTAL_TILE_SPRITES = TOTAL_TILE_SPRITES1 + TOTAL_TILE_SPRITES2 + TOTAL_TILE_SPRITES3 + TOTAL_TILE_SPRITES4 + TOTAL_TILE_SPRITES5 + TOTAL_TILE_SPRITES6 + TOTAL_TILE_SPRITES7;
 
-vector<int> roadTiles{7,8,20, 21, 22, 23, 34, 35, 36, 37, 49, 50, 62, 63, 64, 65, 76, 77, 78, 79, 90, 91, 92, 93, 104, 105, 106, 107};
+vector<int> roadTiles{7, 8, 20, 21, 22, 23, 34, 35, 36, 37, 49, 50, 62, 63, 64, 65, 76, 77, 78, 79, 90, 91, 92, 93, 104, 105, 106, 107, 14742};
 
 
 const int WALKING_ANIMATION_FRAMES = 16;
@@ -172,10 +176,16 @@ LTexture firstImageTexture;
 LTexture secondImageTexture;
 LTexture thirdImageTexture;
 LTexture fourthImageTexture;
+LTexture fifthImageTexture;
+LTexture sixthImageTexture;
+LTexture seventhImageTexture;
 SDL_Rect gTileClips1[ TOTAL_TILE_SPRITES1 ];
 SDL_Rect gTileClips2[ TOTAL_TILE_SPRITES2 ];
 SDL_Rect gTileClips3[ TOTAL_TILE_SPRITES3 ];
 SDL_Rect gTileClips4[ TOTAL_TILE_SPRITES4 ];
+SDL_Rect gTileClips5[ TOTAL_TILE_SPRITES5 ];
+SDL_Rect gTileClips6[ TOTAL_TILE_SPRITES6 ];
+SDL_Rect gTileClips7[ TOTAL_TILE_SPRITES7 ];
 
 LTexture::LTexture()
 {
@@ -349,17 +359,26 @@ void Tile::render( SDL_Rect& camera )
 			// firstImageTexture.render( mBox.x - camera.x, mBox.y - camera.y, &gTileClips1[232] );
 			return;
 
-		if (mType > 0 && mType <= 323)
+		if (mType > 0 && mType <= 324)
         	firstImageTexture.render( mBox.x - camera.x, mBox.y - camera.y, &gTileClips1[ mType - 1] );
 
-		else if (mType > 323 && mType <= 519)
+		else if (mType > 324 && mType <= 520)
 			secondImageTexture.render( mBox.x - camera.x, mBox.y - camera.y, &gTileClips2[ mType - 325] );
 		
-		else if (mType > 519 && mType <= 16903)
+		else if (mType > 520 && mType <= 16904)
 			thirdImageTexture.render( mBox.x - camera.x, mBox.y - camera.y, &gTileClips3[ mType - 521 ] );
 		
-		else if (mType > 16903 && mType <= 17002)
+		else if (mType > 16904 && mType <= 17003)
 			fourthImageTexture.render(mBox.x - camera.x, mBox.y - camera.y, &gTileClips4[ mType - 16905 ] );
+
+		else if (mType > 17003 && mType <= 17009)
+			fifthImageTexture.render(mBox.x - camera.x, mBox.y - camera.y, &gTileClips5[ mType - 17004 ] );
+
+		else if (mType > 17009 && mType <= 17393)
+			sixthImageTexture.render(mBox.x - camera.x, mBox.y - camera.y, &gTileClips6[ mType - 17010 ] );
+
+		else
+			seventhImageTexture.render(mBox.x - camera.x, mBox.y - camera.y, &gTileClips7[ mType - 17394 ] );
 		
 		// else
 		// 	fourthImageTexture.render(mBox.x - camera.x, mBox.y - camera.y, &gTileClips4[ mType ])
@@ -565,28 +584,36 @@ class Character{
 
 	void setCamera(SDL_Rect& camera){
 		//Center the camera over the dot
-	camera.x = ( charBox.x + charBox.w / 2 ) - SCREEN_WIDTH / 2;
-	camera.y = ( charBox.y + charBox.h / 2 ) - SCREEN_HEIGHT / 2;
+		camera.x = ( charBox.x + charBox.w / 2 ) - SCREEN_WIDTH / 2;
+		camera.y = ( charBox.y + charBox.h / 2 ) - SCREEN_HEIGHT / 2;
 
-	if( camera.x < 0 )
-	{ 
-		camera.x = 0;
-	}
-	if( camera.y < 0 )
-	{
-		camera.y = 0;
-	}
-	if( camera.x > LEVEL_WIDTH - camera.w )
-	{
-		camera.x = LEVEL_WIDTH - camera.w;
-	}
-	if( camera.y > LEVEL_HEIGHT - camera.h )
-	{
-		camera.y = LEVEL_HEIGHT - camera.h;
-	}
+		if( camera.x < 0 )
+		{ 
+			camera.x = 0;
+		}
+		if( camera.y < 0 )
+		{
+			camera.y = 0;
+		}
+		if( camera.x > LEVEL_WIDTH - camera.w )
+		{
+			camera.x = LEVEL_WIDTH - camera.w;
+		}
+		if( camera.y > LEVEL_HEIGHT - camera.h )
+		{
+			camera.y = LEVEL_HEIGHT - camera.h;
+		}
 
 	}
 
+	SDL_Rect getCharRect(){
+        return charBox;
+    }
+
+    bool checkcolwithchar(SDL_Rect camera, SDL_Rect fromserver){
+        charBox = fromserver;
+        return checkCollision(charBox,camera);
+    }
 
 };
 
@@ -610,7 +637,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "Game Development", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Player2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -773,6 +800,27 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	}
 
 
+	if( !fifthImageTexture.loadFromFile( "assets/font1.png" ) )
+	{
+		printf( "Failed to load tile set texture!\n" );
+		success = false;
+	}
+
+
+	if( !sixthImageTexture.loadFromFile( "assets/buttons.png" ) )
+	{
+		printf( "Failed to load tile set texture!\n" );
+		success = false;
+	}
+
+
+	if( !seventhImageTexture.loadFromFile( "assets/blue-spritesheet.png" ) )
+	{
+		printf( "Failed to load tile set texture!\n" );
+		success = false;
+	}
+
+
 	//Load tile map
 	if( !setTiles( tiles, "maps/layer1.txt") )
 	{
@@ -808,6 +856,10 @@ void close( Tile* tiles[] )
 	secondImageTexture.free();
 	thirdImageTexture.free();
 	fourthImageTexture.free();
+	fifthImageTexture.free();
+	sixthImageTexture.free();
+	seventhImageTexture.free();
+	charTexture.free();
 
 
 	//Destroy window	
@@ -979,6 +1031,43 @@ bool setTiles( Tile* tiles[], string file)
 				y4 += 32;
 				x4 = 0;
 			}
+
+			int cnt5 = 0, x5 = 0, y5 = 0;
+			for (int i = 0; i < 2; i++){
+				for (int j=0; j < 3; j++){
+					gTileClips5[cnt5] = {x5, y5, TILE_WIDTH, TILE_HEIGHT};
+					x5 += 32;
+					cnt5++; 
+				}
+				y5 += 32;
+				x5 = 0;
+			}
+
+
+			int cnt6 = 0, x6 = 0, y6 = 0;
+			for (int i = 0; i < 48; i++){
+				for (int j=0; j < 8; j++){
+					gTileClips6[cnt6] = {x6, y6, TILE_WIDTH, TILE_HEIGHT};
+					x6 += 32;
+					cnt6++; 
+				}
+				y6 += 32;
+				x6 = 0;
+			}
+
+			int cnt7 = 0, x7 = 0, y7 = 0;
+			for (int i = 0; i < 64; i++){
+				for (int j=0; j < 64; j++){
+					gTileClips7[cnt7] = {x7, y7, TILE_WIDTH, TILE_HEIGHT};
+					x7 += 32;
+					cnt7++; 
+				}
+				y7 += 32;
+				x7 = 0;
+			}
+
+
+
 		}
 	}
 
@@ -998,6 +1087,12 @@ bool touchesRoad( SDL_Rect box, Tile* tiles[] )
         int type = tiles[i]->getType() - 325;
 		// cout << type << endl;
 		SDL_Rect tet = tiles[i]->getBox();
+
+		// if( checkCollision( box, tiles[ i ]->getBox() ) )
+        //     {
+		// 		cout << "YES " << type << endl;
+        //         // return true;
+        //     }
 
 		if(find(roadTiles.begin(), roadTiles.end(), type) != roadTiles.end())
         {
@@ -1026,90 +1121,119 @@ int main( int argc, char* args[] )
 		Tile* tileSet[ TOTAL_TILES ];
 		Tile* tileSet2[TOTAL_TILES];
 
+		//Networking
+		int datain[] = {0,0,0,0}, dataout[] = {0,0,0,0};
+
+		IPaddress ip;
+        SDLNet_ResolveHost(&ip, "127.0.0.1", 1234);
+        TCPsocket client = SDLNet_TCP_Open(&ip);
+
 		//Load media
-		if( !loadMedia( tileSet, tileSet2) )
-		{
-			printf( "Failed to load media!\n" );
-		}
-		else
-		{	
-			//Main loop flag
-			bool quit = false;
-
-			//Event handler
-			SDL_Event e;
-
-			//The dot that will be moving around on the screen
-			//Dot dot;
-
-			
-			
-			Character boy;
-
-			//Level camera
-			SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
-
-
-
-			//While application is running
-			while( !quit )
+		if (client!=NULL){
+			if( !loadMedia( tileSet, tileSet2) )
 			{
-				//Handle events on queue
-				while( SDL_PollEvent( &e ) != 0 )
+				printf( "Failed to load media!\n" );
+			}
+			else
+			{	
+				//Main loop flag
+				bool quit = false;
+
+				//Event handler
+				SDL_Event e;
+
+				//The dot that will be moving around on the screen
+				//Dot dot;
+
+				
+				
+				Character boy;
+				Character boy2;
+
+				//Level camera
+				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+				SDL_Rect fromserver;
+
+
+
+				//While application is running
+				while( !quit )
 				{
-					//User requests quit
-					if( e.type == SDL_QUIT )
+					//Handle events on queue
+					while( SDL_PollEvent( &e ) != 0 )
 					{
-						quit = true;
-					}
+						//User requests quit
+						if( e.type == SDL_QUIT )
+						{
+							quit = true;
+							dataout[0] = -1;
+                            SDLNet_TCP_Send(client, dataout, 16);
+						}
 
-					//Handle input for the dot
-					// dot.handleEvent( e );
-					boy.handleEvent(e);
+						//Handle input for the dot
+						// dot.handleEvent( e );
+						boy.handleEvent(e);
 
-					if(e.type == SDL_KEYDOWN){
-						frame++;
-						if(frame >= 16){
-							frame = 0;
+						if(e.type == SDL_KEYDOWN){
+							frame++;
+							if(frame >= 16){
+								frame = 0;
+							}
 						}
 					}
+
+					//Move the dot
+					// dot.move( tileSet2 );
+					// dot.setCamera( camera );
+
+					boy.move(tileSet2);
+					SDL_Rect curpos = boy.getCharRect();
+                    dataout[0] = curpos.x;
+                    dataout[1] = curpos.y;
+                    dataout[2] = curpos.w;
+                    dataout[3] = curpos.h;
+                    SDLNet_TCP_Send(client, dataout, 16);
+					boy.setCamera(camera);
+
+					//Clear screen
+					SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+					SDL_RenderClear( gRenderer );
+
+					//Render level
+					for( int i = 0; i < TOTAL_TILES; ++i )
+					{
+						tileSet[ i ]->render( camera );
+					}
+
+					//Render level
+					for( int i = 0; i < TOTAL_TILES; ++i )
+					{
+						tileSet2[ i ]->render( camera );
+					}
+
+					// cout << "-----" << dot.getBox().x << " " << dot.getBox().y ;
+					//Render dot
+					//dot.render( camera );
+					boy.render(gRenderer, &camera, frame/4);
+
+					SDLNet_TCP_Recv(client,datain,16);
+                    fromserver = {datain[0], datain[1], datain[2], datain[3]};
+
+                    if(boy2.checkcolwithchar(camera,fromserver)){
+                        boy2.render(gRenderer, &camera, 0);
+                    }
+
+					//Update screen
+					SDL_RenderPresent( gRenderer );
+
+
 				}
-
-				//Move the dot
-				// dot.move( tileSet2 );
-				// dot.setCamera( camera );
-
-				boy.move(tileSet2);
-				boy.setCamera(camera);
-
-				//Clear screen
-				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-				SDL_RenderClear( gRenderer );
-
-				//Render level
-				for( int i = 0; i < TOTAL_TILES; ++i )
-				{
-					tileSet[ i ]->render( camera );
-				}
-
-				//Render level
-				for( int i = 0; i < TOTAL_TILES; ++i )
-				{
-					tileSet2[ i ]->render( camera );
-				}
-
-				// cout << "-----" << dot.getBox().x << " " << dot.getBox().y ;
-				//Render dot
-				//dot.render( camera );
-				boy.render(gRenderer, &camera, frame/4);
-
-				//Update screen
-				SDL_RenderPresent( gRenderer );
-
-
 			}
+
+			SDLNet_TCP_Close(client);
+
 		}
-		
+		SDLNet_Quit();
 		//Free resources and close SDL
 		close( tileSet );
 	}
