@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <bits/stdc++.h>
 #include <fstream>
+#include "timer.h"
 using namespace std;
 //Screen dimension constants
 const int SCREEN_WIDTH = 1280;
@@ -1162,7 +1163,7 @@ int main( int argc, char* args[] )
 				//The dot that will be moving around on the screen
 				//Dot dot;
 
-				
+				LTimer timer;
 				
 				Character boy(1);
 				Character boy2(2);
@@ -1183,6 +1184,7 @@ int main( int argc, char* args[] )
 				//While application is running
 				while( !quit )
 				{
+					if (!timer.isStarted()) timer.start();
 					//Handle events on queue
 					while( SDL_PollEvent( &e ) != 0 )
 					{
@@ -1260,6 +1262,14 @@ int main( int argc, char* args[] )
 							SDL_Rect newnurse = {profDestinations[i].x-camera.x, profDestinations[i].y-camera.y, profDestinations[i].w, profDestinations[i].h};
 							SDL_RenderCopy(gRenderer, professorTexture.getTexture(), &nurseSource, &newnurse);
 						}
+					}
+
+					int gameTime = timer.getTicks() / 1000;
+					int hours = gameTime/3600, minutes = (gameTime%3600)/60;
+					cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs" << endl;
+
+					if (gameTime >= 86400){
+						timer.stop();
 					}
 
 					//Update screen
