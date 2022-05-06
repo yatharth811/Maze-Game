@@ -801,7 +801,7 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 		success = false;
 	}
 
-	if( !charOneTexture.loadFromFile("assets/lance.png")){
+	if( !charOneTexture.loadFromFile("assets/lucas.png")){
 		printf( "Failed to load walking animation texture!\n" );
         success = false;
 	}
@@ -812,16 +812,16 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 4; j++){
-				charOneClips[cnt] = {x, y, 68, 72};
-				x += 68;
+				charOneClips[cnt] = {x, y, 64, 64};
+				x += 64;
 				cnt++;
 			}
 			x = 0;
-			y += 72;
+			y += 64;
 		}
 	}
 
-	if (!charTwoTexture.loadFromFile("assets/zblue.png")){
+	if (!charTwoTexture.loadFromFile("assets/dawn.png")){
 		printf( "Failed to load walking animation texture!\n" );
         success = false;
 	}
