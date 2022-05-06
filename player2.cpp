@@ -185,6 +185,7 @@ LTexture sixthImageTexture;
 LTexture seventhImageTexture;
 LTexture healthImageTexture;
 LTexture nurseTexture;
+LTexture professorTexture;
 
 SDL_Rect gTileClips1[ TOTAL_TILE_SPRITES1 ];
 SDL_Rect gTileClips2[ TOTAL_TILE_SPRITES2 ];
@@ -725,6 +726,12 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 		success = false;
 	}
 
+	if(!professorTexture.loadFromFile("assets/prof1.png")){
+		printf( "Failed to load professor texture!\n" );
+		success = false;
+	}
+
+
 	if(!healthImageTexture.loadFromFile("assets/health.png")){
 		printf( "Failed to load health texture!\n" );
 		success = false;
@@ -869,6 +876,8 @@ void close( Tile* tiles[] )
 	charOneTexture.free();
 	charTwoTexture.free();
 	healthImageTexture.free();
+	nurseTexture.free();
+	professorTexture.free();
 
 
 	//Destroy window	
@@ -1163,8 +1172,14 @@ int main( int argc, char* args[] )
 				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 				SDL_Rect fromserver;
 
-				SDL_Rect nursesrc = {0, 0, 64, 64};
-				SDL_Rect nursedst = {5025,3420,60,60};
+				SDL_Rect nurseSource = {0, 0, 64, 64};
+				SDL_Rect nurseDestination = {5025,3420,60,60};
+				SDL_Rect profDestinations[5];
+				profDestinations[0] = {7970, 3680, 60, 60};
+				profDestinations[1] = {6910, 3500, 60, 60};
+				profDestinations[2] = {8220, 1280, 60, 60};
+				profDestinations[3] = {8550, 2670, 60, 60};
+				profDestinations[4] = {7425, 2420, 60, 60};
 
 
 				//While application is running
@@ -1237,11 +1252,17 @@ int main( int argc, char* args[] )
 					if(f) boy2.changedirection(datain[4]);
                     boy2.render(gRenderer, &camera, datain[5], f);
 
-					if(checkCollision(camera, nursedst)) {
-						SDL_Rect newnurse = {nursedst.x-camera.x, nursedst.y-camera.y, nursedst.w, nursedst.h};
-						SDL_RenderCopy(gRenderer, nurseTexture.getTexture(), &nursesrc, &newnurse);
+					if(checkCollision(camera, nurseDestination)) {
+						SDL_Rect newnurse = {nurseDestination.x-camera.x, nurseDestination.y-camera.y, nurseDestination.w, nurseDestination.h};
+						SDL_RenderCopy(gRenderer, nurseTexture.getTexture(), &nurseSource, &newnurse);
 					}
                     
+					for (int i=0; i<5; i++){
+						if(checkCollision(camera, profDestinations[i])) {
+							SDL_Rect newnurse = {profDestinations[i].x-camera.x, profDestinations[i].y-camera.y, profDestinations[i].w, profDestinations[i].h};
+							SDL_RenderCopy(gRenderer, professorTexture.getTexture(), &nurseSource, &newnurse);
+						}
+					}
 
 					//Update screen
 					SDL_RenderPresent( gRenderer );
