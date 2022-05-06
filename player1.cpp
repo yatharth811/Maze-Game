@@ -30,8 +30,8 @@ vector<int> roadTiles{7, 8, 20, 21, 22, 23, 34, 35, 36, 37, 49, 50, 62, 63, 64, 
 
 
 const int WALKING_ANIMATION_FRAMES = 16;
-SDL_Rect gSpriteClips[ WALKING_ANIMATION_FRAMES ];
-
+SDL_Rect charOneClips[WALKING_ANIMATION_FRAMES];
+SDL_Rect charTwoClips[WALKING_ANIMATION_FRAMES];
 
 int frame = 0;
 
@@ -171,7 +171,8 @@ SDL_Renderer* gRenderer = NULL;
 
 //Scene textures
 LTexture gDotTexture;
-LTexture charTexture;
+LTexture charOneTexture;
+LTexture charTwoTexture;
 LTexture firstImageTexture;
 LTexture secondImageTexture;
 LTexture thirdImageTexture;
@@ -505,9 +506,9 @@ void Dot::render( SDL_Rect& camera )
 class Character{
 	public:
 	SDL_Rect charBox;
-	int direction,mVelx,mVely;
+	int id, direction, mVelx, mVely;
 	static const int DOT_VEL = 10;
-	Character(){
+	Character(int playerId){
 		charBox.x = 9290;
 		charBox.y = 3520;
 		charBox.w = 60;
@@ -515,14 +516,16 @@ class Character{
 		direction = 0;
 		mVelx = 0;
 		mVely = 0;
-
+		id = playerId;
 	}
 
 	void render(SDL_Renderer* gRenderer,SDL_Rect* camera, int frame){
 		SDL_Rect newrect = {charBox.x-camera->x,charBox.y-camera->y,charBox.w,charBox.h};
 
-
-		SDL_RenderCopy(gRenderer,charTexture.getTexture(),&gSpriteClips[direction*4+frame],&newrect);
+		if (id == 1)
+			SDL_RenderCopy(gRenderer,charOneTexture.getTexture(),&charOneClips[direction*4+frame],&newrect);
+		else if (id == 2)
+			SDL_RenderCopy(gRenderer,charTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
 	}
 
 	void handleEvent(SDL_Event& e){
@@ -537,10 +540,10 @@ class Character{
 			//Adjust the velocity
 			switch( e.key.keysym.sym )
 			{
-				case SDLK_UP: mVely -= DOT_VEL; direction = 1; break;
+				case SDLK_UP: mVely -= DOT_VEL; direction = 3; break;
 				case SDLK_DOWN: mVely += DOT_VEL; direction = 0; break;
-				case SDLK_LEFT: mVelx -= DOT_VEL; direction = 2; break;
-				case SDLK_RIGHT: mVelx += DOT_VEL; direction = 3; break;
+				case SDLK_LEFT: mVelx -= DOT_VEL; direction = 1; break;
+				case SDLK_RIGHT: mVelx += DOT_VEL; direction = 2; break;
 			}
 		}
 		//If a key was released
@@ -645,7 +648,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "Player1", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Player2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -691,95 +694,43 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 		success = false;
 	}
 
-	if( !charTexture.loadFromFile("assets/character.bmp")){
+	if( !charOneTexture.loadFromFile("assets/lance.png")){
 		printf( "Failed to load walking animation texture!\n" );
         success = false;
 	}
 
 	else{
-		//direction down
-        gSpriteClips[ 0 ].x =   0;
-        gSpriteClips[ 0 ].y =   0;
-        gSpriteClips[ 0 ].w =  200;
-        gSpriteClips[ 0 ].h =  300;
 
-        gSpriteClips[ 1 ].x =  200;
-        gSpriteClips[ 1 ].y =  0;
-        gSpriteClips[ 1 ].w =  200;
-        gSpriteClips[ 1 ].h = 300;
+		int x = 0, y = 0, cnt = 0;
+
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
+				charOneClips[cnt] = {x, y, 68, 72};
+				x += 68;
+				cnt++;
+			}
+			x = 0;
+			y += 72;
+		}
         
-        gSpriteClips[ 2 ].x = 400;
-        gSpriteClips[ 2 ].y =   0;
-        gSpriteClips[ 2 ].w =  200;
-        gSpriteClips[ 2 ].h = 300;
+	}
 
-        gSpriteClips[ 3 ].x = 600;
-        gSpriteClips[ 3 ].y =   0;
-        gSpriteClips[ 3 ].w =  200;
-        gSpriteClips[ 3 ].h = 300;
+	if (!charTwoTexture.loadFromFile("assets/zblue.png")){
+		printf( "Failed to load walking animation texture!\n" );
+        success = false;
+	}
+	else{
+		int x = 0, y = 0, cnt = 0;
 
-		//dir up
-        gSpriteClips[ 4 ].x =   0;
-        gSpriteClips[ 4 ].y =   300;
-        gSpriteClips[ 4 ].w =  200;
-        gSpriteClips[ 4 ].h = 300;
-
-        gSpriteClips[ 5 ].x =  200;
-        gSpriteClips[ 5 ].y =   300;
-        gSpriteClips[ 5 ].w =  200;
-        gSpriteClips[ 5 ].h = 300;
-        
-        gSpriteClips[ 6 ].x = 400;
-        gSpriteClips[ 6 ].y =   300;
-        gSpriteClips[ 6 ].w =  200;
-        gSpriteClips[ 6 ].h = 300;
-
-        gSpriteClips[ 7 ].x = 600;
-        gSpriteClips[ 7 ].y =  300;
-        gSpriteClips[ 7 ].w =  200;
-        gSpriteClips[ 7 ].h = 300;
-
-		//dir left
-        gSpriteClips[ 8 ].x =   0;
-        gSpriteClips[ 8 ].y =   600;
-        gSpriteClips[ 8 ].w =  200;
-        gSpriteClips[ 8 ].h = 300;
-
-        gSpriteClips[ 9 ].x =  200;
-        gSpriteClips[ 9 ].y =   600;
-        gSpriteClips[ 9 ].w =  200;
-        gSpriteClips[ 9 ].h = 300;
-        
-        gSpriteClips[ 10 ].x = 400;
-        gSpriteClips[ 10].y =  600;
-        gSpriteClips[ 10 ].w =  200;
-        gSpriteClips[ 10 ].h = 300;
-
-        gSpriteClips[ 11 ].x = 600;
-        gSpriteClips[ 11 ].y =   600;
-        gSpriteClips[ 11 ].w =  200;
-        gSpriteClips[ 11 ].h = 300;
-
-		//dir right
-        gSpriteClips[ 12 ].x =   0;
-        gSpriteClips[ 12 ].y =   900;
-        gSpriteClips[ 12 ].w =  200;
-        gSpriteClips[ 12 ].h = 300;
-
-        gSpriteClips[ 13 ].x =  200;
-        gSpriteClips[ 13 ].y =   900;
-        gSpriteClips[ 13 ].w =  200;
-        gSpriteClips[ 13 ].h = 300;
-        
-        gSpriteClips[ 14 ].x = 400;
-        gSpriteClips[ 14 ].y =   900;
-        gSpriteClips[ 14 ].w =  200;
-        gSpriteClips[ 14 ].h = 300;
-
-        gSpriteClips[ 15 ].x = 600;
-        gSpriteClips[ 15 ].y =   900;
-        gSpriteClips[ 15 ].w =  200;
-        gSpriteClips[ 15 ].h = 300;
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
+				charTwoClips[cnt] = {x, y, 64, 64};
+				x += 64;
+				cnt++;
+			}
+			x = 0;
+			y += 64;
+		}
 	}
 
 	//Load tile texture
@@ -867,7 +818,8 @@ void close( Tile* tiles[] )
 	fifthImageTexture.free();
 	sixthImageTexture.free();
 	seventhImageTexture.free();
-	charTexture.free();
+	charOneTexture.free();
+	charTwoTexture.free();
 
 
 	//Destroy window	
@@ -1155,8 +1107,8 @@ int main( int argc, char* args[] )
 
 				
 				
-				Character boy;
-				Character boy2;
+				Character boy(1);
+				Character boy2(2);
 
 				//Level camera
 				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
