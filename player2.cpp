@@ -31,9 +31,9 @@ vector<int> roadTiles{7, 8, 20, 21, 22, 23, 34, 35, 36, 37, 49, 50, 62, 63, 64, 
 
 
 const int WALKING_ANIMATION_FRAMES = 16;
+SDL_Rect gRect = {0,0,64,64};
 SDL_Rect charOneClips[WALKING_ANIMATION_FRAMES];
 SDL_Rect charTwoClips[WALKING_ANIMATION_FRAMES];
-
 SDL_Rect healthClips[6];
 
 int frame = 0;
@@ -111,6 +111,9 @@ class Tile
 		//The tile type
 		int mType;
 };
+
+
+
 
 //The dot that will move around on the screen
 class Dot
@@ -558,12 +561,7 @@ class Character{
 	void handleEvent(SDL_Event& e){
 		if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
 		{
-			// frame++;
-
-			// if(frame/4 >= WALKING_ANIMATION_FRAMES/4){
-			// 	frame = 0;
-			// }
-
+			
 			//Adjust the velocity
 			switch( e.key.keysym.sym )
 			{
@@ -662,6 +660,67 @@ class Character{
 	}
 
 };
+
+
+class Obstacle{
+    public:
+		//The dimensions of the dot
+		static const int OBS_WIDTH = 60;
+		static const int OBS_HEIGHT = 60;
+
+		//Initializes the variables
+		Obstacle(int x, int y, int obstacleType);
+
+		//Shows the dot on the screen
+		void render(SDL_Rect& camera );
+
+		SDL_Rect getBox();
+
+		int getType();
+
+    private:
+		//Collision box of the dot
+		SDL_Rect mBox;
+
+		// type 1 for prof, 2 for nurse and 3 for cats/dogs
+		int type;
+
+};
+
+Obstacle :: Obstacle(int x, int y, int obstacleType){
+	mBox.x = x;
+	mBox.y = y;
+	mBox.w = OBS_WIDTH;
+	mBox.h = OBS_HEIGHT;
+	type = obstacleType;
+}
+
+void Obstacle :: render(SDL_Rect& camera){
+	if (checkCollision(mBox, camera)){
+		if (type == 1){
+			SDL_Rect newBox = {mBox.x - camera.x, mBox.y - camera.y, mBox.w, mBox.h};
+			SDL_RenderCopy(gRenderer, professorTexture.getTexture(), &gRect, &newBox);
+		}
+		else if (type == 2){
+			SDL_Rect newBox = {mBox.x - camera.x, mBox.y - camera.y, mBox.w, mBox.h};
+			SDL_RenderCopy(gRenderer, nurseTexture.getTexture(), &gRect, &newBox);
+		}
+		else{
+			return;
+		}
+	}
+}
+
+SDL_Rect Obstacle :: getBox(){
+	return mBox;
+}
+
+int Obstacle :: getType(){
+	return type;
+}
+
+
+
 
 bool init()
 {
@@ -1168,20 +1227,32 @@ int main( int argc, char* args[] )
 				
 				Character boy(2);
 				Character boy2(1);
+				Obstacle prof1(7970, 3680, 1);
+				Obstacle prof2(6910, 3500, 1);
+				Obstacle prof3(8220, 1280, 1);
+				Obstacle prof4(8550, 2670, 1);
+				Obstacle prof5(7425, 2420, 1);
+				Obstacle nurse(5025, 3420, 2);
 
 				//Level camera
 				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 				SDL_Rect fromserver;
 
-				SDL_Rect nurseSource = {0, 0, 64, 64};
-				SDL_Rect nurseDestination = {5025,3420,60,60};
-				SDL_Rect profDestinations[5];
-				profDestinations[0] = {7970, 3680, 60, 60};
-				profDestinations[1] = {6910, 3500, 60, 60};
-				profDestinations[2] = {8220, 1280, 60, 60};
-				profDestinations[3] = {8550, 2670, 60, 60};
-				profDestinations[4] = {7425, 2420, 60, 60};
+				// SDL_Rect nurseSource = {0, 0, 64, 64};
+				// SDL_Rect nurseDestination = {5025,3420,60,60};
+				// SDL_Rect profDestinations[5];
+				// profDestinations[0] = {7970, 3680, 60, 60};
+				// profDestinations[1] = {6910, 3500, 60, 60};
+				// profDestinations[2] = {8220, 1280, 60, 60};
+				// profDestinations[3] = {8550, 2670, 60, 60};
+				// profDestinations[4] = {7425, 2420, 60, 60};
 
+				int previousCollision1 = -1e6;
+				int previousCollision2 = -1e6;
+				int previousCollision3 = -1e6;
+				int previousCollision4 = -1e6;
+				int previousCollision5 = -1e6;
+				int previousCollisionNurse = -1e6;
 
 				//While application is running
 				while( !quit )
@@ -1254,25 +1325,53 @@ int main( int argc, char* args[] )
 					if(f) boy2.changedirection(datain[4]);
                     boy2.render(gRenderer, &camera, datain[5], f);
 
-					if(checkCollision(camera, nurseDestination)) {
-						SDL_Rect newnurse = {nurseDestination.x-camera.x, nurseDestination.y-camera.y, nurseDestination.w, nurseDestination.h};
-						SDL_RenderCopy(gRenderer, nurseTexture.getTexture(), &nurseSource, &newnurse);
-					}
-                    
-					for (int i=0; i<5; i++){
-						if(checkCollision(camera, profDestinations[i])) {
-							SDL_Rect newnurse = {profDestinations[i].x-camera.x, profDestinations[i].y-camera.y, profDestinations[i].w, profDestinations[i].h};
-							SDL_RenderCopy(gRenderer, professorTexture.getTexture(), &nurseSource, &newnurse);
-						}
-					}
-					
+					prof1.render(camera);
+					prof2.render(camera);
+					prof3.render(camera);
+					prof4.render(camera);
+					prof5.render(camera);
+					nurse.render(camera);
+
+					// Start timing
 					int gameTime = timer.getTicks() / 1000;
 					int hours = gameTime/3600, minutes = (gameTime%3600)/60;
-					cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs" << endl;
+					cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs " << "Health: " << boy.health << endl;
 
 					if (gameTime >= 86400){
 						timer.stop();
 					}
+					// End timing
+
+					if (checkCollision(boy.getCharRect(), prof1.getBox()) && (gameTime - previousCollision1 >= 20)){
+						boy.health -= 5;
+						previousCollision1 = gameTime;
+					}
+
+					if (checkCollision(boy.getCharRect(), prof2.getBox()) && (gameTime - previousCollision2 >= 20)){
+						boy.health -= 5;
+						previousCollision2 = gameTime;
+					}
+
+					if (checkCollision(boy.getCharRect(), prof3.getBox()) && (gameTime - previousCollision3 >= 20)){
+						boy.health -= 5;
+						previousCollision3 = gameTime;
+					}
+
+					if (checkCollision(boy.getCharRect(), prof4.getBox()) && (gameTime - previousCollision4 >= 20)){
+						boy.health -= 5;
+						previousCollision4 = gameTime;
+					}
+
+					if (checkCollision(boy.getCharRect(), prof5.getBox()) && (gameTime - previousCollision5 >= 20)){
+						boy.health -= 5;
+						previousCollision5 = gameTime;
+					}
+
+					if (checkCollision(boy.getCharRect(), nurse.getBox()) && (gameTime - previousCollisionNurse >= 60)){
+						boy.health += 10;
+						previousCollisionNurse = gameTime;
+					}
+
 
 					//Update screen
 					SDL_RenderPresent( gRenderer );
