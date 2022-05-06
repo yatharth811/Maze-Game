@@ -529,7 +529,7 @@ class Character{
 		int healthspriteno;
 		SDL_Rect newrect = {charBox.x-camera->x,charBox.y-camera->y,charBox.w,charBox.h};
 
-		SDL_Rect healthRect = {camera->x, camera->y, 140, 60};
+		SDL_Rect healthRect = {0, 0, 140, 60};
 
 		if(health>=90 && health<=100) healthspriteno=0;
 		else if(health>=70 && health<90) healthspriteno = 1;
@@ -678,7 +678,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "Player2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Player 1", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );

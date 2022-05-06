@@ -514,7 +514,7 @@ class Character{
 	int id, direction, mVelx, mVely;
 	static const int DOT_VEL = 10;
 	Character(int playerId){
-		health = 100;
+		health = 50;
 		charBox.x = 9290;
 		charBox.y = 3520;
 		charBox.w = 60;
@@ -528,15 +528,15 @@ class Character{
 	void render(SDL_Renderer* gRenderer,SDL_Rect* camera, int frame, bool flag){
 		int healthspriteno;
 		SDL_Rect newrect = {charBox.x-camera->x,charBox.y-camera->y,charBox.w,charBox.h};
-
-		SDL_Rect healthRect = {camera->x, camera->y, 100, 40};
+		// cout << "inside" << camera -> x << " " << camera->y << endl;
+		SDL_Rect healthRect = {0, 0, 140, 60};
 
 		if(health>=90 && health<=100) healthspriteno=0;
-		else if(health>=70 && health<90) healthspriteno = 1;
-		else if(health>=50 && health<70) healthspriteno = 2;
-		else if(health>=30 && health<50) healthspriteno = 3;
-		else if(health>=10 && health<30) healthspriteno = 4;
-		else if(health>=0 && health<10) healthspriteno = 5;
+		else if(health >= 70 && health < 90) healthspriteno = 1;
+		else if(health >= 50 && health < 70) healthspriteno = 2;
+		else if(health >= 30 && health < 50) healthspriteno = 3;
+		else if(health >= 10 && health < 30) healthspriteno = 4;
+		else if(health >= 0 && health < 10) healthspriteno = 5;
 		
 
 		if (id == 1){
@@ -678,7 +678,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "Player2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Player 2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -752,88 +752,7 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 			x = 0;
 			y += 72;
 		}
-        // charOneClips[ 0 ].x =   0;
-        // charOneClips[ 0 ].y =   0;
-        // charOneClips[ 0 ].w =  200;
-        // charOneClips[ 0 ].h =  300;
-
-        // charOneClips[ 1 ].x =  200;
-        // charOneClips[ 1 ].y =  0;
-        // charOneClips[ 1 ].w =  200;
-        // charOneClips[ 1 ].h = 300;
         
-        // charOneClips[ 2 ].x = 400;
-        // charOneClips[ 2 ].y =   0;
-        // charOneClips[ 2 ].w =  200;
-        // charOneClips[ 2 ].h = 300;
-
-        // charOneClips[ 3 ].x = 600;
-        // charOneClips[ 3 ].y =   0;
-        // charOneClips[ 3 ].w =  200;
-        // charOneClips[ 3 ].h = 300;
-
-		// //dir up
-        // charOneClips[ 4 ].x =   0;
-        // charOneClips[ 4 ].y =   300;
-        // charOneClips[ 4 ].w =  200;
-        // charOneClips[ 4 ].h = 300;
-
-        // charOneClips[ 5 ].x =  200;
-        // charOneClips[ 5 ].y =   300;
-        // charOneClips[ 5 ].w =  200;
-        // charOneClips[ 5 ].h = 300;
-        
-        // charOneClips[ 6 ].x = 400;
-        // charOneClips[ 6 ].y =   300;
-        // charOneClips[ 6 ].w =  200;
-        // charOneClips[ 6 ].h = 300;
-
-        // charOneClips[ 7 ].x = 600;
-        // charOneClips[ 7 ].y =  300;
-        // charOneClips[ 7 ].w =  200;
-        // charOneClips[ 7 ].h = 300;
-
-		// //dir left
-        // charOneClips[ 8 ].x =   0;
-        // charOneClips[ 8 ].y =   600;
-        // charOneClips[ 8 ].w =  200;
-        // charOneClips[ 8 ].h = 300;
-
-        // charOneClips[ 9 ].x =  200;
-        // charOneClips[ 9 ].y =   600;
-        // charOneClips[ 9 ].w =  200;
-        // charOneClips[ 9 ].h = 300;
-        
-        // charOneClips[ 10 ].x = 400;
-        // charOneClips[ 10].y =  600;
-        // charOneClips[ 10 ].w =  200;
-        // charOneClips[ 10 ].h = 300;
-
-        // charOneClips[ 11 ].x = 600;
-        // charOneClips[ 11 ].y =   600;
-        // charOneClips[ 11 ].w =  200;
-        // charOneClips[ 11 ].h = 300;
-
-		// //dir right
-        // charOneClips[ 12 ].x =   0;
-        // charOneClips[ 12 ].y =   900;
-        // charOneClips[ 12 ].w =  200;
-        // charOneClips[ 12 ].h = 300;
-
-        // charOneClips[ 13 ].x =  200;
-        // charOneClips[ 13 ].y =   900;
-        // charOneClips[ 13 ].w =  200;
-        // charOneClips[ 13 ].h = 300;
-        
-        // charOneClips[ 14 ].x = 400;
-        // charOneClips[ 14 ].y =   900;
-        // charOneClips[ 14 ].w =  200;
-        // charOneClips[ 14 ].h = 300;
-
-        // charOneClips[ 15 ].x = 600;
-        // charOneClips[ 15 ].y =   900;
-        // charOneClips[ 15 ].w =  200;
-        // charOneClips[ 15 ].h = 300;
 	}
 
 	if (!charTwoTexture.loadFromFile("assets/zblue.png")){
@@ -1297,7 +1216,7 @@ int main( int argc, char* args[] )
 						tileSet2[ i ]->render( camera );
 					}
 
-					// cout << "-----" << dot.getBox().x << " " << dot.getBox().y ;
+					// cout << "-----" << camera.x  << " " << camera.y << endl;
 					//Render dot
 					//dot.render( camera );
 					boy.render(gRenderer, &camera, frame/4, true);
