@@ -1,0 +1,1 @@
+The Game compiles and runs according to the rules mentioned in pdf.
