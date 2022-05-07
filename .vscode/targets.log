@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat May  7 19:23:01 2022
+# Make data base, printed on Sat May  7 21:52:55 2022
 
 # Variables
 
@@ -19,7 +19,7 @@ NO_AT_BRIDGE = 1
 # environment
 SNAP_INSTANCE_KEY = 
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-4c5e6714-0ebf-4697-8995-037264a488ae.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-f37abf80-a6f7-4124-825f-93de5adee690.sock
 # environment
 LC_NAME = en_IN
 # environment
@@ -77,13 +77,13 @@ LESS_TERMCAP_md = [01;32m
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # environment
-GNOME_TERMINAL_SERVICE = :1.379
+GNOME_TERMINAL_SERVICE = :1.107
 # makefile
 MAKEFLAGS = pqrR
 # environment
 LESS_TERMCAP_so = [01;47;34m
 # environment
-DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=76672dec3ecbbe10ae32a2df6276778f
+DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=6efb685569c42cfd0a8531ac627699ea
 # makefile
 CURDIR := /home/yatharth/Documents/COP290/Game/Maze-Game
 # environment
@@ -115,7 +115,7 @@ SNAP_REEXEC =
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 6127
+VSCODE_PID = 3239
 # environment
 MOZ_ENABLE_WAYLAND = 1
 # environment
@@ -123,7 +123,7 @@ XDG_SESSION_TYPE = x11
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/yatharth-aspirea71575g:@/tmp/.ICE-unix/1175,unix/yatharth-aspirea71575g:/tmp/.ICE-unix/1175
+SESSION_MANAGER = local/yatharth-aspirea71575g:@/tmp/.ICE-unix/1199,unix/yatharth-aspirea71575g:/tmp/.ICE-unix/1199
 # automatic
 *F = $(notdir $*)
 # environment
@@ -133,7 +133,7 @@ CHROME_DESKTOP = code-url-handler.desktop
 # environment
 INSIDE_NAUTILUS_PYTHON = 
 # environment
-DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus,guid=76672dec3ecbbe10ae32a2df6276778f
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus,guid=6efb685569c42cfd0a8531ac627699ea
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # environment
@@ -153,7 +153,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 2
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/e2df85aa_ee4f_4a5e_9cb8_8dd1c4b74fc2
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/dc8a2e8a_b5a1_4758_936c_f31f00c3bb99
 # environment
 MAKELEVEL := 0
 # default
@@ -215,7 +215,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := all
 # environment
-SYSTEMD_EXEC_PID = 1175
+SYSTEMD_EXEC_PID = 1199
 # environment
 EDITOR = /usr/bin/nano
 # environment
@@ -275,7 +275,6 @@ SNAP_VERSION = 57fd6d01
 # default
 SUFFIXES := 
 # environment
- 
 QT_AUTO_SCREEN_SCALE_FACTOR = 1
 # environment
 _P9K_TTY = /dev/pts/0
@@ -302,12 +301,13 @@ FILE3 = player2
 # environment
 XDG_MENU_PREFIX = gnome-
 # makefile (from 'Makefile', line 6)
-LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net
+LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer
 # environment
 GDMSESSION = gnome
 # environment
 PKGFILE_PROMPT_INSTALL_MISSING = 1
 # environment
+ 
 LC_IDENTIFICATION = en_IN
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
@@ -333,7 +333,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-06 23:45:28.483750663
+#  Last modified 2022-05-07 20:14:16.247979381
 #  File has been updated.
 #  Successfully updated.
 
@@ -400,6 +400,6 @@ all:
 # strcache performance: lookups = 31 / hit rate = 25%
 # hash-table stats:
 # Load=23/8192=0%, Rehash=0, Collisions=0/31=0%
-# Finished Make data base on Sat May  7 19:23:01 2022
+# Finished Make data base on Sat May  7 21:52:55 2022
 
  

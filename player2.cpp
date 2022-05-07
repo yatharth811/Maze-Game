@@ -7,6 +7,9 @@
 #include <bits/stdc++.h>
 #include <fstream>
 #include "timer.h"
+#include "LTexture.h"
+#include "Tile.h"
+#include "obstacle.h"
 using namespace std;
 //Screen dimension constants
 const int SCREEN_WIDTH = 1280;
@@ -41,117 +44,9 @@ SDL_Rect healthClips[6];
 int frame = 0;
 
 //Texture wrapper class
-class LTexture
-{
-	public:
-		//Initializes variables
-		LTexture();
-
-		//Deallocates memory
-		~LTexture();
-
-		//Loads image at specified path
-		bool loadFromFile( std::string path );
-		
-		#if defined(SDL_TTF_MAJOR_VERSION)
-		//Creates image from font string
-		bool loadFromRenderedText( std::string textureText, SDL_Color textColor );
-		#endif
-
-		//Deallocates texture
-		void free();
-
-		//Set color modulation
-		void setColor( Uint8 red, Uint8 green, Uint8 blue );
-
-		//Set blending
-		void setBlendMode( SDL_BlendMode blending );
-
-		//Set alpha modulation
-		void setAlpha( Uint8 alpha );
-		
-		//Renders texture at given point
-		void render( int x, int y, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE );
-
-		//Gets image dimensions
-		int getWidth();
-		int getHeight();
-
-		SDL_Texture* getTexture(){
-			return mTexture;
-		}
-
-	private:
-		//The actual hardware texture
-		SDL_Texture* mTexture;
-
-		//Image dimensions
-		int mWidth;
-		int mHeight;
-};
-
 //The tile
-class Tile
-{
-    public:
-		//Initializes position and type
-		Tile( int x, int y, int tileType );
-
-		//Shows the tile
-		void render( SDL_Rect& camera );
-
-		//Get the tile type
-		int getType();
-
-		//Get the collision box
-		SDL_Rect getBox();
-
-    private:
-		//The attributes of the tile
-		SDL_Rect mBox;
-
-		//The tile type
-		int mType;
-};
-
-
-
-
 //The dot that will move around on the screen
-class Dot
-{
-    public:
-		//The dimensions of the dot
-		static const int DOT_WIDTH = 20;
-		static const int DOT_HEIGHT = 20;
 
-		//Maximum axis velocity of the dot
-		static const int DOT_VEL = 10;
-
-		//Initializes the variables
-		Dot();
-
-		//Takes key presses and adjusts the dot's velocity
-		void handleEvent( SDL_Event& e );
-
-		//Moves the dot and check collision against tiles
-		void move( Tile *tiles[] );
-
-		//Centers the camera over the dot
-		void setCamera( SDL_Rect& camera );
-
-		//Shows the dot on the screen
-		void render( SDL_Rect& camera );
-
-		SDL_Rect getBox();
-
-    private:
-		//Collision box of the dot
-		SDL_Rect mBox;
-
-		//The velocity of the dot
-		int mVelX, mVelY;
-};
 
 //Starts up SDL and creates window
 bool init();
@@ -426,113 +321,6 @@ SDL_Rect Tile::getBox()
     return mBox;
 }
 
-Dot::Dot()
-{
-    //Initialize the collision box
-    mBox.x = 9290;
-    mBox.y = 3520;
-	// mBox.x = 0;
-	// mBox.y = 0;
-	mBox.w = DOT_WIDTH;
-	mBox.h = DOT_HEIGHT;
-
-    //Initialize the velocity
-    mVelX = 0;
-    mVelY = 0;
-}
-
-void Dot::handleEvent( SDL_Event& e )
-{
-    //If a key was pressed
-	if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
-    {
-        //Adjust the velocity
-        switch( e.key.keysym.sym )
-        {
-            case SDLK_UP: mVelY -= DOT_VEL; break;
-            case SDLK_DOWN: mVelY += DOT_VEL; break;
-            case SDLK_LEFT: mVelX -= DOT_VEL; break;
-            case SDLK_RIGHT: mVelX += DOT_VEL; break;
-        }
-    }
-    //If a key was released
-    else if( e.type == SDL_KEYUP && e.key.repeat == 0 )
-    {
-        //Adjust the velocity
-        switch( e.key.keysym.sym )
-        {
-            case SDLK_UP: mVelY += DOT_VEL; break;
-            case SDLK_DOWN: mVelY -= DOT_VEL; break;
-            case SDLK_LEFT: mVelX += DOT_VEL; break;
-            case SDLK_RIGHT: mVelX -= DOT_VEL; break;
-        }
-    }
-}
-
-void Dot::move( Tile *tiles[] )
-{
-    //Move the dot left or right
-    mBox.x += mVelX;
-
-    //If the dot went too far to the left or right or touched a wall
-	// || touchesRoad( mBox, tiles ) 
-    if( ( mBox.x < 0 ) || ( mBox.x + DOT_WIDTH > LEVEL_WIDTH ) || !touchesRoad(mBox, tiles))
-    {
-        //move back
-        mBox.x -= mVelX;
-    }
-
-	// cout << mBox.x << endl;
-    //Move the dot up or down
-    mBox.y += mVelY;
-
-    //If the dot went too far up or down or touched a wall
-	// || touchesRoad( mBox, tiles )
-    if( ( mBox.y < 0 ) || ( mBox.y + DOT_HEIGHT > LEVEL_HEIGHT ) || !touchesRoad(mBox, tiles))
-    {
-        //move back
-        mBox.y -= mVelY;
-    }
-}
-
-void Dot::setCamera( SDL_Rect& camera )
-{
-	//Center the camera over the dot
-	camera.x = ( mBox.x + DOT_WIDTH / 2 ) - SCREEN_WIDTH / 2;
-	camera.y = ( mBox.y + DOT_HEIGHT / 2 ) - SCREEN_HEIGHT / 2;
-
-	//Keep the camera in bounds
-	if( camera.x < 0 )
-	{ 
-		camera.x = 0;
-	}
-	if( camera.y < 0 )
-	{
-		camera.y = 0;
-	}
-	if( camera.x > LEVEL_WIDTH - camera.w )
-	{
-		camera.x = LEVEL_WIDTH - camera.w;
-	}
-	if( camera.y > LEVEL_HEIGHT - camera.h )
-	{
-		camera.y = LEVEL_HEIGHT - camera.h;
-	}
-}
-
-SDL_Rect Dot :: getBox(){
-
-	return mBox;
-
-}
-
-
-void Dot::render( SDL_Rect& camera )
-{
-    //Show the dot
-	gDotTexture.render( mBox.x - camera.x, mBox.y - camera.y );
-}
-
 class Character{
 	public:
 	SDL_Rect charBox;
@@ -690,31 +478,6 @@ class Character{
 
 };
 
-
-class Obstacle{
-    public:
-		//The dimensions of the dot
-		static const int OBS_WIDTH = 60;
-		static const int OBS_HEIGHT = 60;
-
-		//Initializes the variables
-		Obstacle(int x, int y, int obstacleType);
-
-		//Shows the dot on the screen
-		void render(SDL_Rect& camera );
-
-		SDL_Rect getBox();
-
-		int getType();
-
-    private:
-		//Collision box of the dot
-		SDL_Rect mBox;
-
-		// type 1 for prof, 2 for nurse, 3 for cycle wala, 4 for chef and 5 for cats/dogs
-		int type;
-
-};
 
 Obstacle :: Obstacle(int x, int y, int obstacleType){
 	mBox.x = x;
