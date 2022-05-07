@@ -198,7 +198,7 @@ LTexture cashTexture;
 LTexture cashTextTexture;
 LTexture winnerScreen;
 LTexture loserScreen;
-
+LTexture promptTexture1;
 
 TTF_Font* gFont = NULL;
 
@@ -831,7 +831,15 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
     {
         printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
         success = false;
-    }       
+    } 
+
+	SDL_Color clr = {255,255,255,255};
+	string msg1 = "You need at least 80 health to get a yulu!", msg2 = "You need at least 20 cash to buy food!" ;
+
+	if( !promptTexture1.loadFromRenderedText( msg1.c_str(), clr) )
+	{
+		printf( "Unable to render prompt1 texture!\n" );
+	}
 
 	if(!nurseTexture.loadFromFile("assets/nurse.png")){
 		printf( "Failed to load nurse texture!\n" );
@@ -1023,7 +1031,7 @@ void close( Tile* tiles[] )
 	cashTextTexture.free();
 	winnerScreen.free();
 	loserScreen.free();
-
+	promptTexture1.free();
 
 	//Destroy window	
 	SDL_DestroyRenderer( gRenderer );
@@ -1555,6 +1563,9 @@ int main( int argc, char* args[] )
 
 						if (checkCollision(boy.getCharRect(), cycleWala.getBox()) && boy.health >= 80){
 							boy.state = 1;
+						}
+						else if (checkCollision(boy.getCharRect(), cycleWala.getBox()) && boy.health < 80){
+							promptTexture1.render(SCREEN_WIDTH/2 - promptTexture1.getWidth()/2, SCREEN_HEIGHT/2 - promptTexture1.getHeight()/2);
 						}
 
 						if (checkCollision(boy.getCharRect(), chefShiru.getBox()) && (gameTime - previousCollisionShiru >= 20) && (boy.cash >= 20 && boy.health <= 90 && boy.state == 0)){
