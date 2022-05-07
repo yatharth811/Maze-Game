@@ -3,7 +3,7 @@ FILE2 = player1
 FILE3 = player2
 CC = g++
 COMPILER_FLAGS = -w
-LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net
+LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer
 
 all:
 	$(CC) $(FILE1).cpp $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(FILE1).o

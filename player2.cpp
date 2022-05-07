@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_net.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdio.h>
 #include <bits/stdc++.h>
 #include <fstream>
@@ -202,8 +203,11 @@ LTexture cashTextTexture;
 LTexture winnerScreen;
 LTexture loserScreen;
 LTexture promptTexture1;
+LTexture healthTextTexture1;
+LTexture healthTextTexture2;
 
 TTF_Font* gFont = NULL;
+Mix_Music *gMusic = NULL;
 
 SDL_Rect gTileClips1[ TOTAL_TILE_SPRITES1 ];
 SDL_Rect gTileClips2[ TOTAL_TILE_SPRITES2 ];
@@ -760,11 +764,11 @@ bool init()
 	bool success = true;
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
-	{
-		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
-		success = false;
-	}
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
+    {
+        printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+        success = false;
+    }
 	else
 	{
 		//Set texture filtering to linear
@@ -802,6 +806,12 @@ bool init()
 					success = false;
 				}
 			}
+			 //Initialize SDL_mixer
+                if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+                {
+                    printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+                    success = false;
+                }
 		}
 	}
 	if( TTF_Init() == -1 )
@@ -1041,6 +1051,10 @@ void close( Tile* tiles[] )
 	winnerScreen.free();
 	loserScreen.free();
 	promptTexture1.free();
+
+	//Free the music
+    Mix_FreeMusic( gMusic );
+    gMusic = NULL;
 
 	//Destroy window	
 	SDL_DestroyRenderer( gRenderer );
@@ -1335,7 +1349,7 @@ int main( int argc, char* args[] )
 
 				SDL_Color textColor = { 255, 255, 255, 255 };
 
-				stringstream timeText, cashText;		
+				stringstream timeText, cashText, healthText1, healthText2;		
 				
 				Character boy(2);
 				Character boy2(1);
@@ -1489,6 +1503,31 @@ int main( int argc, char* args[] )
 
 						boy2.changehealth(datain[6]);
 						boy2.state = datain[8];
+
+						healthText1.str("");
+						healthText1 << boy.health;
+
+						if( !healthTextTexture1.loadFromRenderedText( healthText1.str().c_str(), textColor ) )
+						{
+							printf( "Unable to render time texture!\n" );
+						}
+
+						healthTextTexture1.render(145 , 20);
+
+
+						healthText2.str("");
+						healthText2 << boy2.health;
+
+						if( !healthTextTexture2.loadFromRenderedText( healthText2.str().c_str(), textColor ) )
+						{
+							printf( "Unable to render time texture!\n" );
+						}
+
+						healthTextTexture2.render(145 , 80);
+
+
+						// if(Mix_PlayingMusic() == 0)
+						// Mix_PlayMusic( gMusic, -1 );
 
 
 						bool f = boy2.checkcolwithchar(camera,fromserver);
