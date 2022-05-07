@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_net.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <bits/stdc++.h>
 #include <fstream>
@@ -190,6 +191,9 @@ LTexture seventhImageTexture;
 LTexture healthImageTexture;
 LTexture nurseTexture;
 LTexture professorTexture;
+LTexture timerTexture;
+
+TTF_Font* gFont = NULL;
 
 SDL_Rect gTileClips1[ TOTAL_TILE_SPRITES1 ];
 SDL_Rect gTileClips2[ TOTAL_TILE_SPRITES2 ];
@@ -772,6 +776,12 @@ bool init()
 			}
 		}
 	}
+	if( TTF_Init() == -1 )
+		{
+			printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
+			success = false;
+		}
+
 
 	return success;
 }
@@ -946,7 +956,13 @@ void close( Tile* tiles[] )
 	gWindow = NULL;
 	gRenderer = NULL;
 
+	timerTexture.free();
+
+	TTF_CloseFont( gFont );
+    gFont = NULL;    
+
 	//Quit SDL subsystems
+	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
 }
@@ -1223,7 +1239,11 @@ int main( int argc, char* args[] )
 				//The dot that will be moving around on the screen
 				//Dot dot;
 
-				LTimer timer;				
+				LTimer timer;		
+
+				SDL_Color textColor = { 255, 255, 255, 255 };
+
+				stringstream timeText;		
 				
 				Character boy(2);
 				Character boy2(1);
@@ -1336,6 +1356,14 @@ int main( int argc, char* args[] )
 					int gameTime = timer.getTicks() / 1000;
 					int hours = gameTime/3600, minutes = (gameTime%3600)/60;
 					cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs " << "Health: " << boy.health << endl;
+
+					timeText.str( "" );
+					timeText << "TIME: " << hours << ":" << minutes  << ":" << gameTime%60;
+
+					if( !timerTexture.loadFromRenderedText( timeText.str().c_str(), textColor ) )
+					{
+						printf( "Unable to render time texture!\n" );
+					}
 
 					if (gameTime >= 86400){
 						timer.stop();

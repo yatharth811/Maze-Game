@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_net.h>
 #include <stdio.h>
 #include <bits/stdc++.h>
@@ -187,6 +188,9 @@ LTexture seventhImageTexture;
 LTexture healthImageTexture;
 LTexture nurseTexture;
 LTexture professorTexture;
+LTexture timerTexture;
+
+TTF_Font* gFont = NULL;
 
 SDL_Rect gTileClips1[ TOTAL_TILE_SPRITES1 ];
 SDL_Rect gTileClips2[ TOTAL_TILE_SPRITES2 ];
@@ -765,6 +769,12 @@ bool init()
 		}
 	}
 
+	if( TTF_Init() == -1 )
+		{
+			printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
+			success = false;
+		}
+
 	return success;
 }
 
@@ -772,6 +782,13 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 {
 	//Loading success flag
 	bool success = true;
+
+	gFont = TTF_OpenFont( "assets/SigmarOne-Regular.ttf", 32 );
+    if( gFont == NULL )
+    {
+        printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+        success = false;
+    }       
 
 	if(!nurseTexture.loadFromFile("assets/nurse.png")){
 		printf( "Failed to load nurse texture!\n" );
@@ -836,7 +853,7 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 			}
 			x = 0;
 			y += 64;
-		}
+		}	
 	}
 
 	//Load tile texture
@@ -937,7 +954,15 @@ void close( Tile* tiles[] )
 	gWindow = NULL;
 	gRenderer = NULL;
 
+	timerTexture.free();
+
+	TTF_CloseFont( gFont );
+    gFont = NULL;    
+
+
+
 	//Quit SDL subsystems
+	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
 }
@@ -1215,6 +1240,10 @@ int main( int argc, char* args[] )
 				//Dot dot;
 
 				LTimer timer;
+
+				SDL_Color textColor = { 255, 255, 255, 255 };
+
+				stringstream timeText;
 				
 				Character boy(1);
 				Character boy2(2);
@@ -1327,6 +1356,16 @@ int main( int argc, char* args[] )
 					int gameTime = timer.getTicks() / 1000;
 					int hours = gameTime/3600, minutes = (gameTime%3600)/60;
 					cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs" << endl;
+
+					timeText.str( "" );
+					timeText << "TIME: " << hours << ":" << minutes  << ":" << gameTime%60;
+
+					if( !timerTexture.loadFromRenderedText( timeText.str().c_str(), textColor ) )
+					{
+						printf( "Unable to render time texture!\n" );
+					}
+
+					timerTexture.render(SCREEN_WIDTH - timerTexture.getWidth() , 0 );
 
 					if (gameTime >= 86400){
 						timer.stop();
