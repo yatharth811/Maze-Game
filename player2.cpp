@@ -191,7 +191,11 @@ LTexture seventhImageTexture;
 LTexture healthImageTexture;
 LTexture nurseTexture;
 LTexture professorTexture;
+LTexture cycleWalaTexture;
+LTexture cycleOneTexture;
+LTexture cycleTwoTexture;
 LTexture timerTexture;
+LTexture startScreenTexture;
 
 TTF_Font* gFont = NULL;
 
@@ -521,7 +525,7 @@ void Dot::render( SDL_Rect& camera )
 class Character{
 	public:
 	SDL_Rect charBox;
-	int health;
+	int health, state;
 	int id, direction, mVelx, mVely;
 	static const int DOT_VEL = 10;
 	Character(int playerId){
@@ -534,6 +538,7 @@ class Character{
 		mVelx = 0;
 		mVely = 0;
 		id = playerId;
+		state = 0;
 	}
 
 	void render(SDL_Renderer* gRenderer,SDL_Rect* camera, int frame, bool flag){
@@ -552,13 +557,14 @@ class Character{
 
 		if (id == 2){
 			healthRect.y += (healthspriteno != 0 || healthspriteno != 5 ? 10 : 0);
+			if(flag && !state) SDL_RenderCopy(gRenderer,charTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
+			if(flag && state) SDL_RenderCopy(gRenderer,cycleTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
 			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
-			if(flag) SDL_RenderCopy(gRenderer,charTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
 		}
 		else if (id == 1){
 			healthRect.y = healthRect.y + 60;
-			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
 			if(flag) SDL_RenderCopy(gRenderer,charOneTexture.getTexture(),&charOneClips[direction*4+frame],&newrect);
+			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
 		}	
 	}
 
@@ -686,7 +692,7 @@ class Obstacle{
 		//Collision box of the dot
 		SDL_Rect mBox;
 
-		// type 1 for prof, 2 for nurse and 3 for cats/dogs
+		// type 1 for prof, 2 for nurse, 3 for cycle wala and 4 for cats/dogs
 		int type;
 
 };
@@ -708,6 +714,10 @@ void Obstacle :: render(SDL_Rect& camera){
 		else if (type == 2){
 			SDL_Rect newBox = {mBox.x - camera.x, mBox.y - camera.y, mBox.w, mBox.h};
 			SDL_RenderCopy(gRenderer, nurseTexture.getTexture(), &gRect, &newBox);
+		}
+		else if (type == 3){
+			SDL_Rect newBox = {mBox.x - camera.x, mBox.y - camera.y, mBox.w, mBox.h};
+			SDL_RenderCopy(gRenderer, cycleWalaTexture.getTexture(), &gRect, &newBox);
 		}
 		else{
 			return;
@@ -791,6 +801,13 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	//Loading success flag
 	bool success = true;
 
+	gFont = TTF_OpenFont( "assets/SigmarOne-Regular.ttf", 32 );
+    if( gFont == NULL )
+    {
+        printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+        success = false;
+    }     
+
 	if(!nurseTexture.loadFromFile("assets/nurse.png")){
 		printf( "Failed to load nurse texture!\n" );
 		success = false;
@@ -798,6 +815,21 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 
 	if(!professorTexture.loadFromFile("assets/prof1.png")){
 		printf( "Failed to load professor texture!\n" );
+		success = false;
+	}
+
+	if(!cycleWalaTexture.loadFromFile("assets/prof2.png")){
+		printf( "Failed to load cyclewala texture!\n" );
+		success = false;
+	}
+
+	if(!cycleOneTexture.loadFromFile("assets/lucasbike.png")){
+		printf( "Failed to load cyclewala texture!\n" );
+		success = false;
+	}
+
+	if(!cycleTwoTexture.loadFromFile("assets/dawnbike.png")){
+		printf( "Failed to load cyclewala texture!\n" );
 		success = false;
 	}
 
@@ -919,6 +951,11 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	}
 
 
+	if (!startScreenTexture.loadFromFile("assets/start-screen.png")){
+		printf( "Failed to start screen\n" );
+		success = false;	
+	}
+
 	return success;
 }
 
@@ -948,6 +985,10 @@ void close( Tile* tiles[] )
 	healthImageTexture.free();
 	nurseTexture.free();
 	professorTexture.free();
+	cycleWalaTexture.free();
+	cycleOneTexture.free();
+	cycleTwoTexture.free();
+	startScreenTexture.free();
 
 
 	//Destroy window	
@@ -1253,6 +1294,7 @@ int main( int argc, char* args[] )
 				Obstacle prof4(8550, 2670, 1);
 				Obstacle prof5(7425, 2420, 1);
 				Obstacle nurse(5025, 3420, 2);
+				Obstacle cycleWala(410, 0, 3);
 
 				//Level camera
 				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
@@ -1274,6 +1316,8 @@ int main( int argc, char* args[] )
 				int previousCollision5 = -1e6;
 				int previousCollisionNurse = -1e6;
 
+				bool startScreen = true, gameStarted = false, gameEnded = false;
+
 				//While application is running
 				while( !quit )
 				{
@@ -1289,116 +1333,149 @@ int main( int argc, char* args[] )
                             SDLNet_TCP_Send(client, dataout, 28);
 						}
 
-						//Handle input for the dot
-						// dot.handleEvent( e );
-						boy.handleEvent(e);
-
-						if(e.type == SDL_KEYDOWN){
-							frame++;
-							if(frame >= 16){
-								frame = 0;
+						if (startScreen){
+							if (e.type == SDL_KEYDOWN){
+								if (e.key.keysym.sym == SDLK_1){
+									gameStarted = true;
+									startScreen = false;
+									gameEnded = false;
+								}
 							}
 						}
+
+
+						//Handle input for the dot
+						// dot.handleEvent( e );
+
+						if (gameStarted){
+							boy.handleEvent(e);
+							if(e.type == SDL_KEYDOWN){
+								frame++;
+								if(frame >= 16){
+									frame = 0;
+								}
+							}
+						}
+
 					}
+					//Clear screen
+					SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+					SDL_RenderClear( gRenderer );
 
 					//Move the dot
 					// dot.move( tileSet2 );
 					// dot.setCamera( camera );
 
-					boy.move(tileSet2);
-					SDL_Rect curpos = boy.getCharRect();
-                    dataout[0] = curpos.x;
-                    dataout[1] = curpos.y;
-                    dataout[2] = curpos.w;
-                    dataout[3] = curpos.h;
-					dataout[4] = boy.getDirection();
-					dataout[5] = frame/4;
-					dataout[6] = boy.getHealth();
-                    SDLNet_TCP_Send(client, dataout, 28);
-					boy.setCamera(camera);
+					if (startScreen){
+						startScreenTexture.render(0, 0);
+					}
+					else if (gameStarted){
 
-					//Clear screen
-					SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-					SDL_RenderClear( gRenderer );
+						boy.move(tileSet2);
+						SDL_Rect curpos = boy.getCharRect();
+						dataout[0] = curpos.x;
+						dataout[1] = curpos.y;
+						dataout[2] = curpos.w;
+						dataout[3] = curpos.h;
+						dataout[4] = boy.getDirection();
+						dataout[5] = frame/4;
+						dataout[6] = boy.getHealth();
+						SDLNet_TCP_Send(client, dataout, 28);
+						boy.setCamera(camera);
 
-					//Render level
-					for( int i = 0; i < TOTAL_TILES; ++i )
-					{
-						tileSet[ i ]->render( camera );
+
+						//Render level
+						for( int i = 0; i < TOTAL_TILES; ++i )
+						{
+							tileSet[ i ]->render( camera );
+						}
+
+						//Render level
+						for( int i = 0; i < TOTAL_TILES; ++i )
+						{
+							tileSet2[ i ]->render( camera );
+						}
+
+						boy.render(gRenderer, &camera, frame/4, true);
+
+						SDLNet_TCP_Recv(client,datain,28);
+						fromserver = {datain[0], datain[1], datain[2], datain[3]};
+
+						boy2.changehealth(datain[6]);
+
+
+						bool f = boy2.checkcolwithchar(camera,fromserver);
+						if(f) boy2.changedirection(datain[4]);
+						boy2.render(gRenderer, &camera, datain[5], f);
+
+						prof1.render(camera);
+						prof2.render(camera);
+						prof3.render(camera);
+						prof4.render(camera);
+						prof5.render(camera);
+						nurse.render(camera);
+						cycleWala.render(camera);
+
+						// Start timing
+						int gameTime = timer.getTicks() / 1000;
+						int hours = gameTime/3600, minutes = (gameTime%3600)/60;
+						cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs " << "Health: " << boy.health << endl;
+
+						timeText.str( "" );
+						timeText << "TIME: " << hours << ":" << minutes  << ":" << gameTime%60;
+
+						if( !timerTexture.loadFromRenderedText( timeText.str().c_str(), textColor ) )
+						{
+							printf( "Unable to render time texture!\n" );
+						}
+
+						timerTexture.render(SCREEN_WIDTH - timerTexture.getWidth() , 0 );
+
+						if (gameTime >= 86400){
+							timer.stop();
+						}
+						// End timing
+
+						if (checkCollision(boy.getCharRect(), prof1.getBox()) && (gameTime - previousCollision1 >= 20)){
+							boy.health -= 5;
+							previousCollision1 = gameTime;
+						}
+
+						if (checkCollision(boy.getCharRect(), prof2.getBox()) && (gameTime - previousCollision2 >= 20)){
+							boy.health -= 5;
+							previousCollision2 = gameTime;
+						}
+
+						if (checkCollision(boy.getCharRect(), prof3.getBox()) && (gameTime - previousCollision3 >= 20)){
+							boy.health -= 5;
+							previousCollision3 = gameTime;
+						}
+
+						if (checkCollision(boy.getCharRect(), prof4.getBox()) && (gameTime - previousCollision4 >= 20)){
+							boy.health -= 5;
+							previousCollision4 = gameTime;
+						}
+
+						if (checkCollision(boy.getCharRect(), prof5.getBox()) && (gameTime - previousCollision5 >= 20)){
+							boy.health -= 5;
+							previousCollision5 = gameTime;
+						}
+
+						if (checkCollision(boy.getCharRect(), nurse.getBox()) && (gameTime - previousCollisionNurse >= 60)){
+							boy.health += 10;
+							previousCollisionNurse = gameTime;
+						}
+
+						if (checkCollision(boy.getCharRect(), cycleWala.getBox())){
+							boy.state = 1;
+						}	
+
+
+					}
+					else if (gameEnded){
+
 					}
 
-					//Render level
-					for( int i = 0; i < TOTAL_TILES; ++i )
-					{
-						tileSet2[ i ]->render( camera );
-					}
-
-					boy.render(gRenderer, &camera, frame/4, true);
-
-					SDLNet_TCP_Recv(client,datain,28);
-                    fromserver = {datain[0], datain[1], datain[2], datain[3]};
-
-					boy2.changehealth(datain[6]);
-
-
-                    bool f = boy2.checkcolwithchar(camera,fromserver);
-					if(f) boy2.changedirection(datain[4]);
-                    boy2.render(gRenderer, &camera, datain[5], f);
-
-					prof1.render(camera);
-					prof2.render(camera);
-					prof3.render(camera);
-					prof4.render(camera);
-					prof5.render(camera);
-					nurse.render(camera);
-
-					// Start timing
-					int gameTime = timer.getTicks() / 1000;
-					int hours = gameTime/3600, minutes = (gameTime%3600)/60;
-					cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs " << "Health: " << boy.health << endl;
-
-					timeText.str( "" );
-					timeText << "TIME: " << hours << ":" << minutes  << ":" << gameTime%60;
-
-					if( !timerTexture.loadFromRenderedText( timeText.str().c_str(), textColor ) )
-					{
-						printf( "Unable to render time texture!\n" );
-					}
-
-					if (gameTime >= 86400){
-						timer.stop();
-					}
-					// End timing
-
-					if (checkCollision(boy.getCharRect(), prof1.getBox()) && (gameTime - previousCollision1 >= 20)){
-						boy.health -= 5;
-						previousCollision1 = gameTime;
-					}
-
-					if (checkCollision(boy.getCharRect(), prof2.getBox()) && (gameTime - previousCollision2 >= 20)){
-						boy.health -= 5;
-						previousCollision2 = gameTime;
-					}
-
-					if (checkCollision(boy.getCharRect(), prof3.getBox()) && (gameTime - previousCollision3 >= 20)){
-						boy.health -= 5;
-						previousCollision3 = gameTime;
-					}
-
-					if (checkCollision(boy.getCharRect(), prof4.getBox()) && (gameTime - previousCollision4 >= 20)){
-						boy.health -= 5;
-						previousCollision4 = gameTime;
-					}
-
-					if (checkCollision(boy.getCharRect(), prof5.getBox()) && (gameTime - previousCollision5 >= 20)){
-						boy.health -= 5;
-						previousCollision5 = gameTime;
-					}
-
-					if (checkCollision(boy.getCharRect(), nurse.getBox()) && (gameTime - previousCollisionNurse >= 60)){
-						boy.health += 10;
-						previousCollisionNurse = gameTime;
-					}
 
 
 					//Update screen

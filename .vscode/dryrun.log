@@ -1,4 +1,4 @@
-make --dry-run --keep-going --print-directory
+make --dry-run --always-make --keep-going --print-directory
 make: Entering directory '/home/yatharth/Documents/COP290/Game/Maze-Game'
 g++ server.cpp -w -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -o server.o
 g++ player1.cpp timer.cpp -w -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -o player1.o

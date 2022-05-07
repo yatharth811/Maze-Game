@@ -5,9 +5,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
- 
 
-# Make data base, printed on Fri May  6 23:46:22 2022
+# Make data base, printed on Sat May  7 12:25:28 2022
 
 # Variables
 
@@ -20,7 +19,7 @@ NO_AT_BRIDGE = 1
 # environment
 SNAP_INSTANCE_KEY = 
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-4a787da8-cc9d-4503-8dc3-6e654b333df7.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-b3888efa-f800-4b4d-896b-d116e6371129.sock
 # environment
 LC_NAME = en_IN
 # environment
@@ -78,13 +77,13 @@ LESS_TERMCAP_md = [01;32m
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # environment
-GNOME_TERMINAL_SERVICE = :1.151
+GNOME_TERMINAL_SERVICE = :1.192
 # makefile
 MAKEFLAGS = pqrR
 # environment
 LESS_TERMCAP_so = [01;47;34m
 # environment
-DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=380681c076fb1302919cfe9062754448
+DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=9784dc478cd8feb61447b9ff62760b4d
 # makefile
 CURDIR := /home/yatharth/Documents/COP290/Game/Maze-Game
 # environment
@@ -116,7 +115,7 @@ SNAP_REEXEC =
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 5252
+VSCODE_PID = 7130
 # environment
 MOZ_ENABLE_WAYLAND = 1
 # environment
@@ -124,7 +123,7 @@ XDG_SESSION_TYPE = x11
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/yatharth-aspirea71575g:@/tmp/.ICE-unix/1190,unix/yatharth-aspirea71575g:/tmp/.ICE-unix/1190
+SESSION_MANAGER = local/yatharth-aspirea71575g:@/tmp/.ICE-unix/1175,unix/yatharth-aspirea71575g:/tmp/.ICE-unix/1175
 # automatic
 *F = $(notdir $*)
 # environment
@@ -134,7 +133,7 @@ CHROME_DESKTOP = code-url-handler.desktop
 # environment
 INSIDE_NAUTILUS_PYTHON = 
 # environment
-DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus,guid=380681c076fb1302919cfe9062754448
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus,guid=9784dc478cd8feb61447b9ff62760b4d
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # environment
@@ -154,7 +153,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 2
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/ba263533_f756_4e41_aa43_90614efc3689
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/3e328b36_79d0_4982_9563_d7a318a34937
 # environment
 MAKELEVEL := 0
 # default
@@ -216,7 +215,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := all
 # environment
-SYSTEMD_EXEC_PID = 1190
+SYSTEMD_EXEC_PID = 1175
 # environment
 EDITOR = /usr/bin/nano
 # environment
@@ -289,6 +288,7 @@ FILE2 = player1
 VTE_VERSION = 6800
 # environment
 SNAP_COMMON = /var/snap/code/common
+ 
 # environment
 LS_OPTIONS = --color=auto
 # default
@@ -305,7 +305,6 @@ XDG_MENU_PREFIX = gnome-
 LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net
 # environment
 GDMSESSION = gnome
- 
 # environment
 PKGFILE_PROMPT_INSTALL_MISSING = 1
 # environment
@@ -321,9 +320,9 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 66309, inode 3441780): 15 files, no impossibilities.
+# . (device 66309, inode 3441780): 17 files, no impossibilities.
 
-# 15 files, no impossibilities in 1 directories.
+# 17 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -395,12 +394,12 @@ all:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 21 / storage = 182 B / avg = 8 B
-# current buf: size = 8162 B / used = 182 B / count = 21 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 23 / storage = 206 B / avg = 8 B
+# current buf: size = 8162 B / used = 206 B / count = 23 / avg = 8 B
 
-# strcache performance: lookups = 29 / hit rate = 27%
+# strcache performance: lookups = 31 / hit rate = 25%
 # hash-table stats:
-# Load=21/8192=0%, Rehash=0, Collisions=0/29=0%
-# Finished Make data base on Fri May  6 23:46:22 2022
+# Load=23/8192=0%, Rehash=0, Collisions=0/31=0%
+# Finished Make data base on Sat May  7 12:25:28 2022
 
  
