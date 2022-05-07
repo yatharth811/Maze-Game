@@ -1498,66 +1498,66 @@ int main( int argc, char* args[] )
 						}
 						// End timing
 
-						if (checkCollision(boy.getCharRect(), prof1.getBox()) && (gameTime - previousCollision1 >= 20)){
+						if (checkCollision(boy.getCharRect(), prof1.getBox()) && (gameTime - previousCollision1 >= 20) && (boy.health >= 5) && (boy.state == 0)){
 							boy.health -= 5;
-							boy.cash += 10;
 							previousCollision1 = gameTime;
+							boy.cash += 10;
 						}
 
-						if (checkCollision(boy.getCharRect(), prof2.getBox()) && (gameTime - previousCollision2 >= 20)){
+						if (checkCollision(boy.getCharRect(), prof2.getBox()) && (gameTime - previousCollision2 >= 20) && (boy.health >= 5) && (boy.state == 0)){
 							boy.health -= 5;
-							boy.cash += 10;
 							previousCollision2 = gameTime;
+							boy.cash += 10;
 						}
 
-						if (checkCollision(boy.getCharRect(), prof3.getBox()) && (gameTime - previousCollision3 >= 20)){
+						if (checkCollision(boy.getCharRect(), prof3.getBox()) && (gameTime - previousCollision3 >= 20) && (boy.health >= 5) && (boy.state == 0)){
 							boy.health -= 5;
-							boy.cash += 10;
 							previousCollision3 = gameTime;
+							boy.cash += 10;
 						}
 
-						if (checkCollision(boy.getCharRect(), prof4.getBox()) && (gameTime - previousCollision4 >= 20)){
+						if (checkCollision(boy.getCharRect(), prof4.getBox()) && (gameTime - previousCollision4 >= 20) && (boy.health >= 5) && (boy.state == 0)){
 							boy.health -= 5;
-							boy.cash += 10;
 							previousCollision4 = gameTime;
-						}
-
-						if (checkCollision(boy.getCharRect(), prof5.getBox()) && (gameTime - previousCollision5 >= 20)){
-							boy.health -= 5;
 							boy.cash += 10;
-							previousCollision5 = gameTime;
 						}
 
-						if (checkCollision(boy.getCharRect(), nurse.getBox()) && (gameTime - previousCollisionNurse >= 60)){
+						if (checkCollision(boy.getCharRect(), prof5.getBox()) && (gameTime - previousCollision5 >= 20) && (boy.health >= 5) && (boy.state == 0) ){
+							boy.health -= 5;
+							previousCollision5 = gameTime;
+							boy.cash += 10;
+						}
+
+						if (checkCollision(boy.getCharRect(), nurse.getBox()) && (gameTime - previousCollisionNurse >= 120) && (boy.health <=  90) && (boy.state == 0)){
 							boy.health += 10;
 							previousCollisionNurse = gameTime;
 						}
 
 						if (checkCollision(boy.getCharRect(), cycleWala.getBox())){
 							boy.state = 1;
-						}	
+						}
 
-						if (checkCollision(boy.getCharRect(), chefShiru.getBox()) && (gameTime - previousCollisionShiru >= 20) && (boy.cash >= 20)){
+						if (checkCollision(boy.getCharRect(), chefShiru.getBox()) && (gameTime - previousCollisionShiru >= 20) && (boy.cash >= 20 && boy.health <= 90 && boy.state == 0)){
 							boy.health += 10;
 							boy.cash -= 20;
 						}
 
-						if (checkCollision(boy.getCharRect(), chefAmul.getBox()) && (gameTime - previousCollisionAmul >= 20)  && (boy.cash >= 20)){
+						if (checkCollision(boy.getCharRect(), chefAmul.getBox()) && (gameTime - previousCollisionAmul >= 20)  && (boy.cash >= 20 && boy.health <= 90 && boy.state == 0)){
 							boy.health += 10;
 							boy.cash -= 20;
 						}
 
-						if (checkCollision(boy.getCharRect(), chefRajdhani.getBox()) && (gameTime - previousCollisionRajdhani >= 20) && (boy.cash >= 20)){
+						if (checkCollision(boy.getCharRect(), chefRajdhani.getBox()) && (gameTime - previousCollisionRajdhani >= 20) && (boy.cash >= 20 && boy.health <= 90 && boy.state == 0)){
 							boy.health += 10;
 							boy.cash -= 20;
 						}
 
-						if (checkCollision(boy.getCharRect(), chefChayos.getBox()) && (gameTime - previousCollisionChayos >= 20) && (boy.cash >= 20)){
+						if (checkCollision(boy.getCharRect(), chefChayos.getBox()) && (gameTime - previousCollisionChayos >= 20) && (boy.cash >= 20 && boy.health <= 90 && boy.state == 0)){
 							boy.health += 10;
 							boy.cash -= 20;
 						}
 
-						if (checkCollision(boy.getCharRect(), chefMasalaMix.getBox()) && (gameTime - previousCollisionMasalaMix >= 20) && (boy.cash >= 20)){
+						if (checkCollision(boy.getCharRect(), chefMasalaMix.getBox()) && (gameTime - previousCollisionMasalaMix >= 20) && (boy.cash >= 20 && boy.health <= 90 && boy.state == 0)){
 							boy.health += 10;
 							boy.cash -= 20;
 						}
