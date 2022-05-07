@@ -191,6 +191,7 @@ LTexture professorTexture;
 LTexture cycleWalaTexture;
 LTexture cycleOneTexture;
 LTexture cycleTwoTexture;
+LTexture chefTexture;
 LTexture timerTexture;
 LTexture startScreenTexture;
 
@@ -522,11 +523,11 @@ void Dot::render( SDL_Rect& camera )
 class Character{
 	public:
 	SDL_Rect charBox;
-	int health, state; // State 0 for walking, 1 for cycling
+	int health, state, cash; // State 0 for walking, 1 for cycling
 	int id, direction, mVelx, mVely;
 	static const int DOT_VEL = 10;
 	Character(int playerId){
-		health = 100;
+		health = 50;
 		charBox.x = 9290;
 		charBox.y = 3520;
 		charBox.w = 60;
@@ -536,6 +537,7 @@ class Character{
 		mVely = 0;
 		id = playerId;
 		state = 0;
+		cash = 0;
 	}
 
 	void render(SDL_Renderer* gRenderer,SDL_Rect* camera, int frame, bool flag){
@@ -560,7 +562,8 @@ class Character{
 		}
 		else if (id == 2){
 			healthRect.y = healthRect.y + 60;
-			if(flag) SDL_RenderCopy(gRenderer,charTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
+			if(flag && !state) SDL_RenderCopy(gRenderer,charTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
+			if(flag && state) SDL_RenderCopy(gRenderer,cycleTwoTexture.getTexture(),&charTwoClips[direction*4+frame],&newrect);
 			SDL_RenderCopy(gRenderer,healthImageTexture.getTexture(),&healthClips[healthspriteno],&healthRect);
 		}	
 	}
@@ -665,6 +668,12 @@ class Character{
 		health = heal;
 	}
 
+	void checkStats(){
+		health = max(0, health);
+		health = min(health, 100);
+		cash = max(0, cash);
+	}
+
 };
 
 class Obstacle{
@@ -687,7 +696,7 @@ class Obstacle{
 		//Collision box of the dot
 		SDL_Rect mBox;
 
-		// type 1 for prof, 2 for nurse, 3 for cycle wala and 4 for dog
+		// type 1 for prof, 2 for nurse, 3 for cycle wala, 4 for chef and 5 for dog
 		int type;
 
 };
@@ -713,6 +722,10 @@ void Obstacle :: render(SDL_Rect& camera){
 		else if (type == 3){
 			SDL_Rect newBox = {mBox.x - camera.x, mBox.y - camera.y, mBox.w, mBox.h};
 			SDL_RenderCopy(gRenderer, cycleWalaTexture.getTexture(), &gRect, &newBox);
+		}
+		else if (type == 4){
+			SDL_Rect newBox = {mBox.x - camera.x, mBox.y - camera.y, mBox.w, mBox.h};
+			SDL_RenderCopy(gRenderer, chefTexture.getTexture(), &gRect, &newBox);
 		}
 		else{
 			return;
@@ -824,6 +837,13 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 		printf( "Failed to load dawn's cycle texture!\n" );
 		success = false;
 	}
+
+
+	if (!chefTexture.loadFromFile("assets/chef.png")){
+		printf( "Failed to load chef texture!\n" );
+		success = false;
+	}
+
 
 	if(!healthImageTexture.loadFromFile("assets/health.png")){
 		printf( "Failed to load health texture!\n" );
@@ -978,6 +998,7 @@ void close( Tile* tiles[] )
 	cycleWalaTexture.free();
 	cycleOneTexture.free();
 	cycleTwoTexture.free();
+	chefTexture.free();
 	startScreenTexture.free();
 
 
@@ -1288,6 +1309,11 @@ int main( int argc, char* args[] )
 				Obstacle prof5(7425, 2420, 1);
 				Obstacle nurse(5025, 3420, 2);
 				Obstacle cycleWala(410, 0, 3);
+				Obstacle chefShiru(7390, 3440, 4);
+				Obstacle chefAmul(7380, 2940, 4);
+				Obstacle chefRajdhani(3780, 3370, 4);
+				Obstacle chefChayos(4110, 2750, 4);
+				Obstacle chefMasalaMix(4110, 2660, 4);
 
 				//Level camera
 				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
@@ -1308,6 +1334,11 @@ int main( int argc, char* args[] )
 				int previousCollision4 = -1e6;
 				int previousCollision5 = -1e6;
 				int previousCollisionNurse = -1e6;
+				int previousCollisionShiru = -1e6;
+				int previousCollisionAmul = -1e6;
+				int previousCollisionRajdhani = -1e6;
+				int previousCollisionChayos = -1e6;
+				int previousCollisionMasalaMix = -1e6;
 
 				bool startScreen = true, gameStarted = false, gameEnded = false;
 
@@ -1405,6 +1436,11 @@ int main( int argc, char* args[] )
 						prof5.render(camera);
 						nurse.render(camera);
 						cycleWala.render(camera);
+						chefShiru.render(camera);
+						chefAmul.render(camera);
+						chefRajdhani.render(camera);
+						chefChayos.render(camera);
+						chefMasalaMix.render(camera);
 
 						int gameTime = timer.getTicks() / 1000;
 						int hours = gameTime/3600, minutes = (gameTime%3600)/60;
@@ -1427,29 +1463,34 @@ int main( int argc, char* args[] )
 						if (checkCollision(boy.getCharRect(), prof1.getBox()) && (gameTime - previousCollision1 >= 20)){
 							boy.health -= 5;
 							previousCollision1 = gameTime;
+							boy.cash += 10;
 						}
 
 						if (checkCollision(boy.getCharRect(), prof2.getBox()) && (gameTime - previousCollision2 >= 20)){
 							boy.health -= 5;
 							previousCollision2 = gameTime;
+							boy.cash += 10;
 						}
 
 						if (checkCollision(boy.getCharRect(), prof3.getBox()) && (gameTime - previousCollision3 >= 20)){
 							boy.health -= 5;
 							previousCollision3 = gameTime;
+							boy.cash += 10;
 						}
 
 						if (checkCollision(boy.getCharRect(), prof4.getBox()) && (gameTime - previousCollision4 >= 20)){
 							boy.health -= 5;
 							previousCollision4 = gameTime;
+							boy.cash += 10;
 						}
 
 						if (checkCollision(boy.getCharRect(), prof5.getBox()) && (gameTime - previousCollision5 >= 20)){
 							boy.health -= 5;
 							previousCollision5 = gameTime;
+							boy.cash += 10;
 						}
 
-						if (checkCollision(boy.getCharRect(), nurse.getBox()) && (gameTime - previousCollisionNurse >= 60)){
+						if (checkCollision(boy.getCharRect(), nurse.getBox()) && (gameTime - previousCollisionNurse >= 120)){
 							boy.health += 10;
 							previousCollisionNurse = gameTime;
 						}
@@ -1457,6 +1498,33 @@ int main( int argc, char* args[] )
 						if (checkCollision(boy.getCharRect(), cycleWala.getBox())){
 							boy.state = 1;
 						}
+
+						if (checkCollision(boy.getCharRect(), chefShiru.getBox()) && (gameTime - previousCollisionShiru >= 20) && (boy.cash >= 20)){
+							boy.health += 10;
+							boy.cash -= 20;
+						}
+
+						if (checkCollision(boy.getCharRect(), chefAmul.getBox()) && (gameTime - previousCollisionAmul >= 20)  && (boy.cash >= 20)){
+							boy.health += 10;
+							boy.cash -= 20;
+						}
+
+						if (checkCollision(boy.getCharRect(), chefRajdhani.getBox()) && (gameTime - previousCollisionRajdhani >= 20) && (boy.cash >= 20)){
+							boy.health += 10;
+							boy.cash -= 20;
+						}
+
+						if (checkCollision(boy.getCharRect(), chefChayos.getBox()) && (gameTime - previousCollisionChayos >= 20) && (boy.cash >= 20)){
+							boy.health += 10;
+							boy.cash -= 20;
+						}
+
+						if (checkCollision(boy.getCharRect(), chefMasalaMix.getBox()) && (gameTime - previousCollisionMasalaMix >= 20) && (boy.cash >= 20)){
+							boy.health += 10;
+							boy.cash -= 20;
+						}
+
+						boy.checkStats();
 
 					}
 					else if (gameEnded){
