@@ -199,6 +199,8 @@ LTexture timerTexture;
 LTexture startScreenTexture;
 LTexture cashTexture;
 LTexture cashTextTexture;
+LTexture winnerScreen;
+LTexture loserScreen;
 
 TTF_Font* gFont = NULL;
 
@@ -816,6 +818,16 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	//Loading success flag
 	bool success = true;
 
+	if (!winnerScreen.loadFromFile("assets/won.png")){
+		printf( "Failed to load winner texture!\n" );
+		success = false;
+	}
+
+	if (!loserScreen.loadFromFile("assets/loss.png")){
+		printf( "Failed to load loser texture!\n" );
+		success = false;
+	}
+
 	if(!cashTexture.loadFromFile("assets/cash.png")){
 		printf( "Failed to load professor texture!\n" );
 		success = false;
@@ -1016,6 +1028,8 @@ void close( Tile* tiles[] )
 	chefTexture.free();
 	startScreenTexture.free();
 	cashTextTexture.free();
+	winnerScreen.free();
+	loserScreen.free();
 
 
 	//Destroy window	
@@ -1332,6 +1346,7 @@ int main( int argc, char* args[] )
 				//Level camera
 				SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 				SDL_Rect fromserver;
+				SDL_Rect destinationEnd = {9290,3520,60,60};
 
 				// SDL_Rect nurseSource = {0, 0, 64, 64};
 				// SDL_Rect nurseDestination = {5025,3420,60,60};
@@ -1353,6 +1368,7 @@ int main( int argc, char* args[] )
 				int previousCollisionRajdhani = -1e6;
 				int previousCollisionChayos = -1e6;
 				int previousCollisionMasalaMix = -1e6;
+				int winner = 0;
 
 
 				bool startScreen = true, gameStarted = false, gameEnded = false;
@@ -1410,6 +1426,25 @@ int main( int argc, char* args[] )
 					}
 					else if (gameStarted){
 
+						if (checkCollision(boy.getCharRect(), destinationEnd) && boy.state){
+							gameEnded = true;
+							// gameStarted = false;
+							winner = 2;
+						}
+						else if (boy.health == 0){
+							gameEnded = true;
+							// gameStarted = false;
+							winner = 1;
+						}
+						else if (datain[7]){
+							gameEnded = true;
+							// gameStarted = false;
+							winner = datain[7];
+						}
+
+						
+
+
 						boy.move(tileSet2);
 						SDL_Rect curpos = boy.getCharRect();
 						dataout[0] = curpos.x;
@@ -1419,7 +1454,7 @@ int main( int argc, char* args[] )
 						dataout[4] = boy.getDirection();
 						dataout[5] = frame/4;
 						dataout[6] = boy.getHealth();
-						dataout[7] = int(gameEnded);
+						dataout[7] = winner;
 						dataout[8] = boy.state;
 						SDLNet_TCP_Send(client, dataout, 36);
 						boy.setCamera(camera);
@@ -1438,8 +1473,8 @@ int main( int argc, char* args[] )
 						}
 
 						boy.render(gRenderer, &camera, frame/4, true);
-
 						SDLNet_TCP_Recv(client,datain,36);
+
 						fromserver = {datain[0], datain[1], datain[2], datain[3]};
 
 						boy2.changehealth(datain[6]);
@@ -1466,7 +1501,7 @@ int main( int argc, char* args[] )
 						// Start timing
 						int gameTime = timer.getTicks() / 1000;
 						int hours = gameTime/3600, minutes = (gameTime%3600)/60;
-						cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs " << "Health: " << boy.health << " Cash: " << boy.cash <<  endl;
+						// cout << "Time: " << hours << "hrs " << minutes  << " mins " << gameTime << " secs " << "Health: " << boy.health << " Cash: " << boy.cash <<  endl;
 
 						timeText.str( "" );
 						timeText << "TIME: " << hours << ":" << minutes  << ":" << gameTime%60;
@@ -1533,9 +1568,10 @@ int main( int argc, char* args[] )
 							previousCollisionNurse = gameTime;
 						}
 
-						if (checkCollision(boy.getCharRect(), cycleWala.getBox())){
+						if (checkCollision(boy.getCharRect(), cycleWala.getBox()) && boy.health >= 80){
 							boy.state = 1;
 						}
+						
 
 						if (checkCollision(boy.getCharRect(), chefShiru.getBox()) && (gameTime - previousCollisionShiru >= 20) && (boy.cash >= 20 && boy.health <= 90 && boy.state == 0)){
 							boy.health += 10;
@@ -1564,10 +1600,27 @@ int main( int argc, char* args[] )
 
 						boy.checkStats();
 
+						if (winner){
+							if (winner == boy.id) {
+								winnerScreen.render(0,0);
+							}
+							else{
+								loserScreen.render(0,0);
+							}
+						}
+						
 
 					}
 					else if (gameEnded){
-
+						cout << winner << endl;
+						if (winner == 2){
+							// you won wali screen
+							winnerScreen.render(0,0);
+						}
+						else{
+							// you lost
+							loserScreen.render(0,0);
+						}
 					}
 
 
