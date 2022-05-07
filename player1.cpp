@@ -195,6 +195,7 @@ LTexture cycleTwoTexture;
 LTexture chefTexture;
 LTexture timerTexture;
 LTexture startScreenTexture;
+LTexture ruleScreenTexture;
 LTexture cashTexture;
 LTexture cashTextTexture;
 LTexture winnerScreen;
@@ -1012,6 +1013,11 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 		success = false;	
 	}
 
+	if (!ruleScreenTexture.loadFromFile("assets/rules.png")){
+		printf( "Failed to load rule screen\n" );
+		success = false;	
+	}
+
 
 	return success;
 }
@@ -1047,10 +1053,13 @@ void close( Tile* tiles[] )
 	cycleTwoTexture.free();
 	chefTexture.free();
 	startScreenTexture.free();
+	ruleScreenTexture.free();
 	cashTextTexture.free();
 	winnerScreen.free();
 	loserScreen.free();
 	promptTexture1.free();
+	healthTextTexture1.free();
+	healthTextTexture2.free();
 
 	 //Free the music
     Mix_FreeMusic( gMusic );
@@ -1395,7 +1404,7 @@ int main( int argc, char* args[] )
 				int previousCollisionMasalaMix = -1e6;
 				int winner = 0;
 
-				bool startScreen = true, gameStarted = false, gameEnded = false;
+				bool startScreen = true, gameStarted = false, gameEnded = false, ruleScreen = false;
 
 
 
@@ -1416,12 +1425,19 @@ int main( int argc, char* args[] )
 
 						//Handle input for the dot
 						// dot.handleEvent( e );
-						if (startScreen){
+						if (startScreen || ruleScreen){
 							if (e.type == SDL_KEYDOWN){
 								if (e.key.keysym.sym == SDLK_1){
 									gameStarted = true;
 									startScreen = false;
 									gameEnded = false;
+									ruleScreen = false;
+								}
+								else if (e.key.keysym.sym == SDLK_2){
+									gameStarted = false;
+									startScreen = false;
+									gameEnded = false;
+									ruleScreen = true;
 								}
 							}
 						}
@@ -1447,6 +1463,9 @@ int main( int argc, char* args[] )
 					// dot.setCamera( camera );
 					if (startScreen){
 						startScreenTexture.render(0,0);
+					}
+					else if (ruleScreen){
+						ruleScreenTexture.render(0,0);
 					}
 					else if (gameStarted){
 

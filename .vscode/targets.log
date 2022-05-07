@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat May  7 12:25:28 2022
+# Make data base, printed on Sat May  7 19:23:01 2022
 
 # Variables
 
@@ -19,7 +19,7 @@ NO_AT_BRIDGE = 1
 # environment
 SNAP_INSTANCE_KEY = 
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-b3888efa-f800-4b4d-896b-d116e6371129.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-4c5e6714-0ebf-4697-8995-037264a488ae.sock
 # environment
 LC_NAME = en_IN
 # environment
@@ -77,13 +77,13 @@ LESS_TERMCAP_md = [01;32m
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # environment
-GNOME_TERMINAL_SERVICE = :1.192
+GNOME_TERMINAL_SERVICE = :1.379
 # makefile
 MAKEFLAGS = pqrR
 # environment
 LESS_TERMCAP_so = [01;47;34m
 # environment
-DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=9784dc478cd8feb61447b9ff62760b4d
+DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=76672dec3ecbbe10ae32a2df6276778f
 # makefile
 CURDIR := /home/yatharth/Documents/COP290/Game/Maze-Game
 # environment
@@ -115,7 +115,7 @@ SNAP_REEXEC =
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 7130
+VSCODE_PID = 6127
 # environment
 MOZ_ENABLE_WAYLAND = 1
 # environment
@@ -133,7 +133,7 @@ CHROME_DESKTOP = code-url-handler.desktop
 # environment
 INSIDE_NAUTILUS_PYTHON = 
 # environment
-DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus,guid=9784dc478cd8feb61447b9ff62760b4d
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus,guid=76672dec3ecbbe10ae32a2df6276778f
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # environment
@@ -153,7 +153,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 2
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/3e328b36_79d0_4982_9563_d7a318a34937
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/e2df85aa_ee4f_4a5e_9cb8_8dd1c4b74fc2
 # environment
 MAKELEVEL := 0
 # default
@@ -275,6 +275,7 @@ SNAP_VERSION = 57fd6d01
 # default
 SUFFIXES := 
 # environment
+ 
 QT_AUTO_SCREEN_SCALE_FACTOR = 1
 # environment
 _P9K_TTY = /dev/pts/0
@@ -288,7 +289,6 @@ FILE2 = player1
 VTE_VERSION = 6800
 # environment
 SNAP_COMMON = /var/snap/code/common
- 
 # environment
 LS_OPTIONS = --color=auto
 # default
@@ -400,6 +400,6 @@ all:
 # strcache performance: lookups = 31 / hit rate = 25%
 # hash-table stats:
 # Load=23/8192=0%, Rehash=0, Collisions=0/31=0%
-# Finished Make data base on Sat May  7 12:25:28 2022
+# Finished Make data base on Sat May  7 19:23:01 2022
 
  
