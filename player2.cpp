@@ -197,6 +197,8 @@ LTexture cycleTwoTexture;
 LTexture chefTexture;
 LTexture timerTexture;
 LTexture startScreenTexture;
+LTexture cashTexture;
+LTexture cashTextTexture;
 
 TTF_Font* gFont = NULL;
 
@@ -814,6 +816,11 @@ bool loadMedia( Tile* tiles[], Tile* tiles2[])
 	//Loading success flag
 	bool success = true;
 
+	if(!cashTexture.loadFromFile("assets/cash.png")){
+		printf( "Failed to load professor texture!\n" );
+		success = false;
+	}
+
 	gFont = TTF_OpenFont( "assets/SigmarOne-Regular.ttf", 32 );
     if( gFont == NULL )
     {
@@ -1008,6 +1015,7 @@ void close( Tile* tiles[] )
 	cycleTwoTexture.free();
 	chefTexture.free();
 	startScreenTexture.free();
+	cashTextTexture.free();
 
 
 	//Destroy window	
@@ -1276,7 +1284,7 @@ int main( int argc, char* args[] )
 		Tile* tileSet2[TOTAL_TILES];
 
 		//Networking
-		int datain[] = {0,0,0,0,0,0,0}, dataout[] = {0,0,0,0,0,0,0};
+		int datain[] = {0,0,0,0,0,0,0,0,0}, dataout[] = {0,0,0,0,0,0,0,0,0};
 
 		IPaddress ip;
         SDLNet_ResolveHost(&ip, "127.0.0.1", 1234);
@@ -1303,7 +1311,7 @@ int main( int argc, char* args[] )
 
 				SDL_Color textColor = { 255, 255, 255, 255 };
 
-				stringstream timeText;		
+				stringstream timeText, cashText;		
 				
 				Character boy(2);
 				Character boy2(1);
@@ -1361,7 +1369,7 @@ int main( int argc, char* args[] )
 						{
 							quit = true;
 							dataout[0] = -1;
-                            SDLNet_TCP_Send(client, dataout, 28);
+                            SDLNet_TCP_Send(client, dataout, 36);
 						}
 
 						if (startScreen){
@@ -1411,7 +1419,9 @@ int main( int argc, char* args[] )
 						dataout[4] = boy.getDirection();
 						dataout[5] = frame/4;
 						dataout[6] = boy.getHealth();
-						SDLNet_TCP_Send(client, dataout, 28);
+						dataout[7] = int(gameEnded);
+						dataout[8] = boy.state;
+						SDLNet_TCP_Send(client, dataout, 36);
 						boy.setCamera(camera);
 
 
@@ -1429,10 +1439,11 @@ int main( int argc, char* args[] )
 
 						boy.render(gRenderer, &camera, frame/4, true);
 
-						SDLNet_TCP_Recv(client,datain,28);
+						SDLNet_TCP_Recv(client,datain,36);
 						fromserver = {datain[0], datain[1], datain[2], datain[3]};
 
 						boy2.changehealth(datain[6]);
+						boy2.state = datain[8];
 
 
 						bool f = boy2.checkcolwithchar(camera,fromserver);
@@ -1460,12 +1471,27 @@ int main( int argc, char* args[] )
 						timeText.str( "" );
 						timeText << "TIME: " << hours << ":" << minutes  << ":" << gameTime%60;
 
+						
+
 						if( !timerTexture.loadFromRenderedText( timeText.str().c_str(), textColor ) )
 						{
 							printf( "Unable to render time texture!\n" );
 						}
 
 						timerTexture.render(SCREEN_WIDTH - timerTexture.getWidth() , 0 );
+
+						SDL_Rect cashRect = {SCREEN_WIDTH/2, 0, 60, 60};
+
+						SDL_RenderCopy(gRenderer,cashTexture.getTexture(), NULL, &cashRect);
+
+						cashText.str("");
+						cashText << boy.cash;
+
+						if( !cashTextTexture.loadFromRenderedText( cashText.str().c_str(), textColor ) )
+						{
+							printf( "Unable to render cash texture!\n" );
+						}
+						cashTextTexture.render(SCREEN_WIDTH/2 + 70, 0);
 
 						if (gameTime >= 86400){
 							timer.stop();
